@@ -1,58 +1,52 @@
-print("ok letsgoooooo")
+print("Hello world!")
 
+from adafruit_circuitplayground import cp
 import time
+import rainbowio
+from audiopwmio import PWMAudioOut as AudioOut
+import audiocore
+import math
 import board
 import digitalio
 
-clock = 0
+brown = digitalio.DigitalInOut(board.A3)
+orange = digitalio.DigitalInOut(board.A2)
 
-builtinled = digitalio.DigitalInOut(board.LED)
-builtinled.direction = digitalio.Direction.OUTPUT
-
-led = digitalio.DigitalInOut(board.GP14)
-led.direction = digitalio.Direction.OUTPUT
-
-button = digitalio.DigitalInOut(board.GP13)
-button.switch_to_input(pull=digitalio.Pull.DOWN)
-
-led.value = True
-time.sleep(0.5)
-led.value = False
+def beep_times(num):
+    print("I beep this many times:")
+    print(num)
+    cp.pixels.fill((0,0,0))
+    cp.pixels[num % 10] = (0,30,5)
 
 button_state = False
 counter = 0
 
-def beep_times(n):
-    print("I beep this many times:")
-    print(n)
-    for i in range(n):
-        led.value = True
-        time.sleep(0.3)
-        led.value = False
-        time.sleep(0.3)
-
 while True:
-    if button.value:
-        builtinled.value = True
-        if button_state:
-            # Was on, stay on
-            pass
-        else:   
-            # Was off, now on
-            button_state = True
-            print("Yes on!")
-            counter += 1
+    dialling = brown.value
+    if not dialling:
+        if counter > 0:
+            print("Finished with non-zero value for counter")
+            print(counter)
+            beep_times(counter)
+            counter = 0
     else:
-        builtinled.value = False
-        if button_state:
-            # Was on, now off
-            clock = time.monotonic() # Start timeout to playback
-            button_state = False
-            print("Now off")
+        if orange.value:
+            cp.red_led = True
+            if button_state:
+                # Was on, stay on
+                pass
+            else:
+                # Was off, now on
+                print("Yes on!")
+            button_state = True
         else:
-            # Was off, still off
-            current_time = time.monotonic()
-            if clock != 0 and current_time - clock >= 2:
-                beep_times(counter)
-                counter = 0
-                clock = 0
+            cp.red_led = False
+            if button_state:
+                # Was on, now off
+                print("Now off!")
+                counter += 1
+                pass
+            else:
+                # Was off, stay off
+                pass
+            button_state = False
