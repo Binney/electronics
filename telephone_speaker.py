@@ -7,12 +7,15 @@ from audiopwmio import PWMAudioOut as AudioOut
 import audiocore
 import math
 import board
+import digitalio
 
 audio = AudioOut(board.AUDIO)  # Speaker
 wave_file = None
 
 play_mode = False
 button_pressed = False
+
+switch = digitalio.DigitalInOut(board.A3) # arm of phone
 
 def play_wav(name, loop=False):
     """
@@ -43,14 +46,6 @@ def positive_degrees(angle):
     return (angle + 360) % 360
 
 def get_tilt():
-    """Normalize the Y-Axis Tilt
-    standard_gravity = (
-        9.81  # Acceleration (m/s²) due to gravity at the earth’s surface
-    )
-    print(cp.acceleration)
-    constrained_accel = min(max(0.0, -cp.acceleration[1]), standard_gravity)
-    return constrained_accel / standard_gravity
-    """
     accel_x, accel_y = cp.acceleration[:2]  # Ignore z
     return positive_degrees(angle_in_degrees(accel_x, accel_y)) / 360
 
@@ -73,23 +68,11 @@ def freq_for(number):
 counter = 0
 
 while True:
-    if cp.button_a:
-        if not button_pressed:
-            button_pressed = True
-            play_mode = not play_mode
-    else:
-        button_pressed = False
-    #cp.pixels.fill((5, 1, 0))
+    play_mode = not switch.value
     tilt = get_tilt()
     cp.pixels.fill(hsv_to_rgb(tilt, 100))
-    cp.stop_tone()
-    #cp.start_tone(freq_for(tilt))
-    #print(counter)
     if (play_mode):
-        #if counter < 0.01:
         if not audio.playing:
             play_wav('telephone', True)
     else:
         audio.stop()
-    time.sleep(0.1)
-#    counter += 0.01
