@@ -9,30 +9,17 @@ import math
 import board
 import digitalio
 
-# KNOWN ISSUES
-# - nothing to prevent you from messing with dial mid-rotation (you get mod 10)
-
 brown = digitalio.DigitalInOut(board.A3)
 orange = digitalio.DigitalInOut(board.A2)
 
-def beep_times(num):
-    print("I beep this many times:")
-    print(num)
-    cp.pixels.fill((0,0,0))
-    cp.pixels[num % 10] = (0,30,5)
+num_dialled = ''
 
 button_state = False
 counter = 0
 
 while True:
     dialling = brown.value
-    if not dialling:
-        if counter > 0:
-            print("Finished with non-zero value for counter")
-            print(counter)
-            beep_times(counter)
-            counter = 0
-    else:
+    if dialling:
         if orange.value:
             cp.red_led = True
             if button_state:
@@ -41,6 +28,7 @@ while True:
             else:
                 # Was off, now on
                 print("Yes on!")
+                #counter += 1
             button_state = True
         else:
             cp.red_led = False
@@ -53,3 +41,20 @@ while True:
                 # Was off, stay off
                 pass
             button_state = False
+    else:
+        if counter > 0:
+            print("Now dialling:")
+            print(counter)
+            cp.pixels.fill((0,0,0))
+            cp.pixels[counter % 10] = (0,30,5)
+            num_dialled += str(counter)
+            print("Brings us up to:")
+            print(num_dialled)
+            if len(num_dialled) == 5:
+                if num_dialled == '12345':
+                    print("That's correct!")
+                else:
+                    print("Nope, wrong")
+                num_dialled = ''
+            counter = 0
+
