@@ -18,8 +18,8 @@ counter = 0
 
 playing = False
 
-ringing = vlc.MediaPlayer("file:///home/sarbin/Documents/ringing.mp3")
-success = vlc.MediaPlayer("file:///home/sarbin/Documents/dialup.mp3")
+ringing = vlc.MediaPlayer("file:///home/sarbin/Documents/electronics/ringing.mp3")
+success = vlc.MediaPlayer("file:///home/sarbin/Documents/electronics/dialup.mp3")
 
 while True:
     if off_hook.is_pressed:
