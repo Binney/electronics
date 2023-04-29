@@ -55,7 +55,7 @@ while True:
             if counter > 0:
                 print("Adding number to what dialled:")
                 print(counter)
-                num_dialled += str(counter)
+                num_dialled += str(counter % 10)
                 print("Brings us up to:")
                 print(num_dialled)
                 counter = 0
