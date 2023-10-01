@@ -38,11 +38,14 @@ actual_sequence = [
     letter_6a
     ]
 
+# TODO startup sequence
+
 while True:
-    for i in len(actual_sequence):
-        actual_sequence[i].on()
+    for led in actual_sequence:
+        led.on()
         time.sleep(1)
-        actual_sequence[i].off()
+        led.off()
         time.sleep(0.5)
+    print("Restart")
     time.sleep(3)
 
