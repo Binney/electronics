@@ -118,13 +118,45 @@ hold_until_dialled("1")
 player.set_media(intro_2)
 player.play()
 
-hold_until_dialled("123")
+hold_until_dialled("222")
 
 ## SECOND PUZZLE ##
 
 player.set_media(on_getting_matryoska)
 player.play()
 
-hold_until_dialled("999")
+hold_until_dialled("333")
+
+## THIRD PUZZLE ##
+
+player.set_media(on_getting_strangerlights)
+player.play()
+
+reddd = LED(17)
+reddd.on()
+
+hold_until_dialled("4")
+
+reddd.off()
+blue = LED(27)
+blue.on()
+
+hold_until_dialled("5")
+
+blue.off()
+yellooo = LED(22)
+yellooo.on()
+
+hold_until_dialled("6")
+
+yellooo.off()
+
+## FINAL PUZZLE ##
+
+player.set_media(on_getting_ouija)
+player.play()
+
+hold_until_dialled("777")
+
 
 print("You're done!")
