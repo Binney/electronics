@@ -11,8 +11,6 @@ dialling = Button(19) # yellow on pi; brown in phone
 off_hook = Button(26) # red on pi; yellow in phone
 # Ground: Black on pi; greu from hook and red from dialler in phone
 
-history = ""
-
 ##dialling = Button(17) # brown from phone
 ##dial_pulser = Button(27) # orange from phone
 ##off_hook = Button(22) # yellow from phone
@@ -22,7 +20,9 @@ vlc_ins = vlc.Instance()
 player = vlc_ins.media_player_new()
 
 sounds_directory = Path(__file__).parent / "public/sounds"
+ringing_sound = vlc_ins.media_new(sounds_directory / "dialup-0b.mp3")
 intro = vlc_ins.media_new(sounds_directory / "dialup-2a.mp3")
+intro_2 = vlc_ins.media_new(sounds_directory / "dialup-2b.mp3")
 on_getting_matryoska = vlc_ins.media_new(sounds_directory / "dialup-3a.mp3")
 on_getting_strangerlights = vlc_ins.media_new(sounds_directory / "dialup-6a.mp3")
 on_getting_ouija = vlc_ins.media_new(sounds_directory / "dialup-7a.mp3")
@@ -87,11 +87,44 @@ def wait_for_dial():
 
                     return counter % 10
 
-while True:
-    result = wait_for_dial()
-    history += str(result)
-    if len(history) > 20: # let's be reasonable now
-        history = history[-20:]
-    print("Dialled " + history)
-    if history.endswith("999"):
-        print("WOOOP WOOP")
+def hold_until_dialled(answer):
+    history = ""
+    while True:
+        result = wait_for_dial()
+        history += str(result)
+        if len(history) > 20: # let's be reasonable now
+            history = history[-20:]
+        print("Dialled " + history)
+
+        if history.endswith(answer):
+            return
+
+
+## qq figure out how to make it keep ringing
+player.set_media(ringing_sound)
+player.play()
+
+off_hook.wait_for_press()
+
+## INTRO ##
+player.pause()
+sleep(1)
+player.set_media(intro)
+player.play()
+
+hold_until_dialled("1")
+
+## INTRO PART 2 ##
+player.set_media(intro_2)
+player.play()
+
+hold_until_dialled("123")
+
+## SECOND PUZZLE ##
+
+player.set_media(on_getting_matryoska)
+player.play()
+
+hold_until_dialled("999")
+
+print("You're done!")

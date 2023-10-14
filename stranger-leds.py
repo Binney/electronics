@@ -76,12 +76,12 @@ for i in range(0, 10):
     first_row[i].on()
     second_row[i].on()
     time.sleep(0.1)
-#second_row[10].on()
+second_row[10].on()
 for i in range(0, 10):
     first_row[i].off()
     second_row[i].off()
     time.sleep(0.1)
-#second_row[10].off()
+second_row[10].off()
 
 print("Starting sequence")
 
