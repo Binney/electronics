@@ -6,16 +6,6 @@ from gpiozero import Button, LED
 import vlc
 from pathlib import Path
 
-dial_pulser = Button(13) # blue on pi; orange in phone
-dialling = Button(19) # yellow on pi; brown in phone
-off_hook = Button(26) # red on pi; yellow in phone
-# Ground: Black on pi; greu from hook and red from dialler in phone
-
-##dialling = Button(17) # brown from phone
-##dial_pulser = Button(27) # orange from phone
-##off_hook = Button(22) # yellow from phone
-## black wires to ground
-
 vlc_ins = vlc.Instance()
 player = vlc_ins.media_player_new()
 
@@ -27,6 +17,24 @@ on_getting_matryoska = vlc_ins.media_new(sounds_directory / "dialup-3a.mp3")
 on_getting_strangerlights = vlc_ins.media_new(sounds_directory / "dialup-6a.mp3")
 on_getting_ouija = vlc_ins.media_new(sounds_directory / "dialup-7a.mp3")
 # qq sounds
+
+def wait_for_door_to_open():
+    door = Button(5)
+    while True:
+        print(door.is_pressed)
+        sleep(0.1)
+        if not door.is_pressed:
+            return
+
+dial_pulser = Button(13) # blue on pi; orange in phone
+dialling = Button(19) # yellow on pi; brown in phone
+off_hook = Button(26) # red on pi; yellow in phone
+# Ground: Black on pi; greu from hook and red from dialler in phone
+
+##dialling = Button(17) # brown from phone
+##dial_pulser = Button(27) # orange from phone
+##off_hook = Button(22) # yellow from phone
+## black wires to ground
 
 indicator = LED(23)
 
@@ -100,9 +108,9 @@ def hold_until_dialled(answer):
             return
 
 
-## qq figure out how to make it keep ringing
 player.set_media(ringing_sound)
-player.play()
+wait_for_door_to_open()
+player.play() # qq play on loop
 
 off_hook.wait_for_press()
 
@@ -122,32 +130,32 @@ hold_until_dialled("222")
 
 ## SECOND PUZZLE ##
 
-player.set_media(on_getting_matryoska)
+player.set_media(on_getting_strangerlights)
 player.play()
 
-hold_until_dialled("333")
+hold_until_dialled("286673327")
 
 ## THIRD PUZZLE ##
 
-player.set_media(on_getting_strangerlights)
+player.set_media(on_getting_matryoska)
 player.play()
 
 reddd = LED(17)
 reddd.on()
 
-hold_until_dialled("4")
+hold_until_dialled("8")
 
 reddd.off()
 blue = LED(27)
 blue.on()
 
-hold_until_dialled("5")
+hold_until_dialled("3")
 
 blue.off()
 yellooo = LED(22)
 yellooo.on()
 
-hold_until_dialled("6")
+hold_until_dialled("2")
 
 yellooo.off()
 
@@ -155,8 +163,5 @@ yellooo.off()
 
 player.set_media(on_getting_ouija)
 player.play()
-
-hold_until_dialled("777")
-
 
 print("You're done!")
