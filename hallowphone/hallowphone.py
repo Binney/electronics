@@ -1,11 +1,12 @@
 import time
 from pathlib import Path
 import keyboard_input_emulators
+# import rotary_phone_input
+# import door_input
 from transitions import Machine
 import logging
 import os
 
-os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
 import vlc
 
 logging.basicConfig(level=logging.INFO)
@@ -41,11 +42,13 @@ class Hallowpuzz(object):
         self.machine.add_transition(trigger='move_to_ouija_a', source='ouija_e', dest='ouija_a')
         self.machine.add_transition(trigger='move_to_ouija_question_mark', source='ouija_a', dest='ouija_question_mark')
 
-        # noinspection PyUnresolvedReferences
         keyboard_input_emulators.set_up_keyboard_door_emulator(self.door_opened)
+        # door_input.set_up_door_input(self.door_opened)
         keyboard_input_emulators.set_up_keyboard_phone_emulator(self.dialled_digit, self.off_hook)
+        # rotary_phone_input.set_up_phone_input(self.dialled_digit, self.off_hook)
 
     def door_opened(self):
+        print("Door opened")
         if self.is_initial():
             player.set_media(loud_ringing_sound)
             player.play()
@@ -65,8 +68,9 @@ class Hallowpuzz(object):
             self.start_puzzle()
 
     def dialled_digit(self, digit):
+        print("Received digit: " + str(digit))
         self.dial_history += str(digit)
-        print(self.dial_history)
+        print("Dial history: " + self.dial_history)
         callback = next((
             callback for sequence, callback in self.dial_callbacks.items() if self.dial_history.endswith(sequence)),
             None)
