@@ -1,14 +1,22 @@
 import time
-
+from pathlib import Path
 import keyboard_input_emulators
-
 from transitions import Machine
-
 import logging
+import os
+
+os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
+import vlc
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('transitions').setLevel(logging.INFO)
 
+
+vlc_ins = vlc.Instance()
+player = vlc_ins.media_player_new()
+
+sounds_directory = Path(__file__).parent / "sounds"
+loud_ringing_sound = vlc_ins.media_new(sounds_directory / "loud_ringing_sound.mp3")
 
 # noinspection PyUnresolvedReferences
 class Hallowpuzz(object):
@@ -39,7 +47,8 @@ class Hallowpuzz(object):
 
     def door_opened(self):
         if self.is_initial():
-            print("Would ring phone")
+            player.set_media(loud_ringing_sound)
+            player.play()
 
     def off_hook(self):
         print("Phone off hook")
