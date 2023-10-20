@@ -4,6 +4,7 @@ import keyboard_input_emulators
 import magnet_output_emulators
 # import rotary_phone_input
 # import door_input
+# import magnets
 from transitions import Machine
 import logging
 import os
