@@ -8,11 +8,11 @@ import magnet_output_emulators
 from transitions import Machine
 import logging
 import os
+import vlc
 
-# Required on Windows
+# Required on Windows; comment out on Pi
 os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
 
-import vlc
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('transitions').setLevel(logging.INFO)
@@ -35,7 +35,8 @@ boo = vlc_ins.media_new(sounds_directory / "boo.m4a")
 
 # noinspection PyUnresolvedReferences
 class Hallowpuzz(object):
-    states = ['initial', 'first_camden_message', 'searching_for_ghost_name', 'inputting_ghost_name', 'ouija_t', 'ouija_e', 'ouija_a', 'ouija_question_mark']
+    states = ['initial', 'first_camden_message', 'searching_for_ghost_name', 'inputting_ghost_name', 'ouija_t',
+              'ouija_e', 'ouija_a', 'ouija_question_mark']
 
     def __init__(self):
         self.dial_history = ""

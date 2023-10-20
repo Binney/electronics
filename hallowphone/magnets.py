@@ -4,7 +4,7 @@ from gpiozero import LED
 t_magnet = LED(17)  # Red
 e_magnet = LED(27)  # Blue
 a_magnet = LED(22)  # Yellow
-question_mark_magnet = LED(23)  # ????? QQ
+question_mark_magnet = LED(23)  # ????? QQQQQQQQ
 
 
 def enable_t():
