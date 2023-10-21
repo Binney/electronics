@@ -1,10 +1,10 @@
 
 from gpiozero import LED
 
-t_magnet = LED(17)  # Red
-e_magnet = LED(27)  # Blue
-a_magnet = LED(22)  # Yellow
-question_mark_magnet = LED(23)  # ????? QQQQQQQQ
+t_magnet = LED(12)
+e_magnet = LED(16)
+a_magnet = LED(20)
+question_mark_magnet = LED(21)
 
 
 def enable_t():

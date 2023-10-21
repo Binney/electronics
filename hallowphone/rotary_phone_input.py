@@ -4,15 +4,15 @@ import gpiozero
 
 # Binneyphone
 
-pin_dialling = 19  # yellow on pi; brown in phone
 pin_dial_pulser = 13  # blue on pi; orange in phone
-pin_on_hook = 26  # red on pi; yellow in phone
-# Ground: Black on pi; grey from hook and red from dialler in phone
+pin_dialling = 19  # yellow on pi; brown in phone
+pin_off_hook = 26  # red on pi; yellow in phone
+# Ground: Brown on pi; grey from hook and red from dialler in phone
 
 
 dialling = gpiozero.DigitalInputDevice(pin_dialling, pull_up=True, bounce_time=None)
 dial_pulser = gpiozero.DigitalInputDevice(pin_dial_pulser, pull_up=True, bounce_time=None)
-on_hook = gpiozero.DigitalInputDevice(pin_on_hook, pull_up=True, bounce_time=None)
+off_hook = gpiozero.DigitalInputDevice(pin_off_hook, pull_up=True, bounce_time=None)
 
 
 class Dial():
@@ -58,4 +58,4 @@ def set_up_phone_input(digit_callback, off_hook_callback):
     dial_pulser.when_activated = dial.add_pulse
     dialling.when_activated = dial.start_counting
     dialling.when_deactivated = dial.stop_counting
-    on_hook.when_deactivated = off_hook_callback
+    off_hook.when_deactivated = off_hook_callback

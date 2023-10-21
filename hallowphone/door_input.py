@@ -1,6 +1,6 @@
 import gpiozero
 
-pin_door_closed = 26  # QQQQQ
+pin_door_closed = 4
 door_closed = gpiozero.DigitalInputDevice(pin_door_closed, pull_up=True, bounce_time=None)
 
 

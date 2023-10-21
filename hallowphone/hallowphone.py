@@ -1,17 +1,17 @@
 import time
 from pathlib import Path
-import keyboard_input_emulators
-import magnet_output_emulators
-# import rotary_phone_input
-# import door_input
-# import magnets
+#import keyboard_input_emulators
+import rotary_phone_input
+import door_input
+#import magnet_output_emulators
+import magnets
 from transitions import Machine
 import logging
 import os
 import vlc
 
 # Required on Windows; comment out on Pi
-os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
+#os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
 
 
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +32,8 @@ ouija_complete = vlc_ins.media_new(sounds_directory / "ouija_complete.m4a")
 dial_zero = vlc_ins.media_new(sounds_directory / "dial_zero.m4a")
 boo = vlc_ins.media_new(sounds_directory / "boo.m4a")
 
+# magnet_triggers = magnet_output_emulators
+magnet_triggers = magnets
 
 # noinspection PyUnresolvedReferences
 class Hallowpuzz(object):
@@ -61,10 +63,10 @@ class Hallowpuzz(object):
         self.machine.add_transition(trigger='move_to_ouija_a', source='ouija_e', dest='ouija_a')
         self.machine.add_transition(trigger='move_to_ouija_question_mark', source='ouija_a', dest='ouija_question_mark')
 
-        keyboard_input_emulators.set_up_keyboard_door_emulator(self.door_opened)
-        # door_input.set_up_door_input(self.door_opened)
-        keyboard_input_emulators.set_up_keyboard_phone_emulator(self.dialled_digit, self.off_hook)
-        # rotary_phone_input.set_up_phone_input(self.dialled_digit, self.off_hook)
+        # keyboard_input_emulators.set_up_keyboard_door_emulator(self.door_opened)
+        door_input.set_up_door_input(self.door_opened)
+        # keyboard_input_emulators.set_up_keyboard_phone_emulator(self.dialled_digit, self.off_hook)
+        rotary_phone_input.set_up_phone_input(self.dialled_digit, self.off_hook)
 
     def door_opened(self):
         print("Door opened")
@@ -125,7 +127,7 @@ class Hallowpuzz(object):
     def on_enter_ouija_t(self):
         print("Playing ouija prompt")
         self.play_sound(ouija_prompt)
-        magnet_output_emulators.enable_t()
+        magnet_triggers.enable_t()
         self.dial_callbacks = {
             "8": self.move_to_ouija_e,
             "0": self.start_ouija,
@@ -135,7 +137,7 @@ class Hallowpuzz(object):
     def on_enter_ouija_e(self):
         print("Playing boo")
         self.play_sound(boo)
-        magnet_output_emulators.enable_e()
+        magnet_triggers.enable_e()
         self.dial_callbacks = {
             "3": self.move_to_ouija_a,
             "0": self.start_ouija,
@@ -145,7 +147,7 @@ class Hallowpuzz(object):
     def on_enter_ouija_a(self):
         print("Playing boo")
         self.play_sound(boo)
-        magnet_output_emulators.enable_a()
+        magnet_triggers.enable_a()
         self.dial_callbacks = {
             "2": self.move_to_ouija_question_mark,
             "0": self.start_ouija,
@@ -155,7 +157,7 @@ class Hallowpuzz(object):
     def on_enter_ouija_question_mark(self):
         print("Playing ouija complete")
         self.play_sound(ouija_complete)
-        magnet_output_emulators.enable_question_mark()
+        magnet_triggers.enable_question_mark()
         self.dial_callbacks = {
             "0": self.start_ouija
         }
