@@ -1,7 +1,10 @@
 print("Hello world!")
 
+import os
+os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
+
+
 from time import sleep
-import math
 from gpiozero import Button, LED
 import vlc
 from pathlib import Path
