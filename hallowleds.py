@@ -17,13 +17,7 @@ E = LED(21)
 all_leds = [G, H, O, S, T, I, D, C, L, U, E]
 answer = [G, O, O, U, T, S, I, D, E, D, I, G]
 
-while True:
-    for led in answer:
-        led.on()
-        sleep(0.2)
-        led.off()
-        sleep(0.1)
-
+def all_flash():
     # all blink complete sequence
     for i in range(5):
         for led in all_leds:
@@ -31,9 +25,9 @@ while True:
         sleep(1 / ((i + 1) ** 2))
         for led in all_leds:
             led.off()
+        sleep(0.5 / ((i + 1) ** 2))
 
-    sleep(5)
-
+def all_shuffle():
     shuffled_leds = all_leds.copy()
     shuffled_leds.extend(all_leds)
     shuffled_leds.extend(all_leds)
@@ -42,3 +36,14 @@ while True:
     for led in shuffled_leds:
         led.toggle()
         sleep(0.2)
+
+while True:
+    for led in answer:
+        led.on()
+        sleep(0.2)
+        led.off()
+        sleep(0.1)
+
+    all_flash()
+    sleep(5)
+
