@@ -21,15 +21,14 @@ vlc_ins = vlc.Instance()
 player = vlc_ins.media_player_new()
 
 sounds_directory = Path(__file__).parent / "sounds"
-loud_ringing_sound = vlc_ins.media_new(sounds_directory / "loud_ringing_sound.mp3")
-silly_ring_do_not_use = vlc_ins.media_new(sounds_directory / "silly_ring_do_not_use.m4a")
-first_camden_council_call = vlc_ins.media_new(sounds_directory / "first_camden_council_call.m4a")
-on_later_pick_off_hook = vlc_ins.media_new(sounds_directory / "on_later_pick_off_hook.m4a")
-ghost_name_prompt = vlc_ins.media_new(sounds_directory / "ghost_name_prompt.m4a")
-book_info = vlc_ins.media_new(sounds_directory / "book_info.m4a")
-ouija_prompt = vlc_ins.media_new(sounds_directory / "ouija_prompt.m4a")
-ouija_complete = vlc_ins.media_new(sounds_directory / "ouija_complete.m4a")
-dial_zero = vlc_ins.media_new(sounds_directory / "dial_zero.m4a")
+ringing_sound = vlc_ins.media_new(sounds_directory / "telephone.mp3")
+first_camden_council_call = vlc_ins.media_new(sounds_directory / "1_CamdenCouncil.m4a")
+book_info = vlc_ins.media_new(sounds_directory / "2_BookInfo.m4a")
+on_later_pick_off_hook = vlc_ins.media_new(sounds_directory / "3_OnLaterPickOffHook.m4a")
+ghost_name_prompt = vlc_ins.media_new(sounds_directory / "4_GhostNamePrompt.m4a")
+dial_zero = vlc_ins.media_new(sounds_directory / "5_DialZero.m4a")
+ouija_prompt = vlc_ins.media_new(sounds_directory / "6_OuijaPrompt.m4a")
+ouija_complete = vlc_ins.media_new(sounds_directory / "7_OuijaComplete.m4a")
 boo = vlc_ins.media_new(sounds_directory / "boo.m4a")
 
 # magnet_triggers = magnet_output_emulators
@@ -71,7 +70,7 @@ class Hallowpuzz(object):
     def door_opened(self):
         print("Door opened")
         if self.is_initial():
-            self.play_sound(silly_ring_do_not_use)
+            self.play_sound(ringing_sound)
 
     def off_hook(self):
         player.stop()
