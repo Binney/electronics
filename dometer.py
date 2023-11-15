@@ -5,6 +5,12 @@ GPIO.setmode(GPIO.BCM)
 
 print("asdlfkjasdflkasdflk")
 
+# TODOS
+# - make distance sensor more reliable
+# - pictures of dom
+# - lights that light up when it's counting
+# - calibrate chip appropriately
+
 GPIO_TRIGGER = 23
 GPIO_ECHO = 24
 
