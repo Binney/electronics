@@ -8,9 +8,12 @@ print("asdlfkjasdflkasdflk")
 GPIO_TRIGGER = 23
 GPIO_ECHO = 24
 
+booze_pin = 14
+
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
+GPIO.setup(booze_pin, GPIO.IN)
 
 GPIO.output(GPIO_TRIGGER, False)
 time.sleep(2)
@@ -56,10 +59,35 @@ def distance():
 
     return distance
 
+time_to_smell = 1000
+
+def test_approval():
+    n = 0
+    alcohol_absent_count = 0
+    while n < time_to_smell:
+        alcohol_absent_count += GPIO.input(booze_pin)
+        time.sleep(0.01)
+        n += 1
+    print("Verdict:")
+    print(alcohol_absent_count)
+    if alcohol_absent_count < 1000:
+        print("boooooze")
+        return True
+    else:
+        print("no booz")
+        return False
+
 while True:
     print("wat is distance")
     dist = distance()
     print("Distance is: %.1f" % dist)
+    if dist < 15:
+        print("cocktail detected!!!")
+        print("but does Dom approve?")
+        does_dom_approve = test_approval()
+        if does_dom_approve:
+            print("Dom approves!")
+        else:
+            print("Dom does not approve :(")
     time.sleep(1)
-
 
