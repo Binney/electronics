@@ -1,6 +1,3 @@
-from gpiozero import Button, LED
-from time import sleep
-import RPi.GPIO as GPIO
 from RpiMotorLib import RpiMotorLib
 
 print("Hello, world!")
@@ -10,5 +7,3 @@ mymotortest = RpiMotorLib.BYJMotor("SyzyMotor", "28BYJ")
 mymotortest.motor_run(GpioPins, 0.001, 512, False, False, "half", 0.05)
 
 print("And that's done")
-
-
