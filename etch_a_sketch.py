@@ -4,21 +4,25 @@ import usb_hid
 from adafruit_hid.mouse import Mouse
 import rotaryio
 
-encoderL = rotaryio.IncrementalEncoder(board.GP3, board.GP4)
+encoderL = rotaryio.IncrementalEncoder(board.GP19, board.GP18)
 last_position_L = 0
-buttonL = digitalio.DigitalInOut(board.GP28)
+buttonL = digitalio.DigitalInOut(board.GP17)
 buttonL.direction = digitalio.Direction.INPUT
 buttonL.pull = digitalio.Pull.UP
 buttonL_state = None
 
-encoderR = rotaryio.IncrementalEncoder(board.GP14, board.GP15)
+encoderR = rotaryio.IncrementalEncoder(board.GP3, board.GP4)
 last_position_R = 0
-buttonR = digitalio.DigitalInOut(board.GP16)
+buttonR = digitalio.DigitalInOut(board.GP12)
 buttonR.direction = digitalio.Direction.INPUT
 buttonR.pull = digitalio.Pull.UP
 buttonR_state = None
 
 mouse = Mouse(usb_hid.devices)
+
+led = digitalio.DigitalInOut(board.GP15)
+led.direction = digitalio.Direction.OUTPUT
+led.value = True
 
 print("start!")
 
