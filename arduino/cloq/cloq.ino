@@ -1,5 +1,6 @@
 // it's the cloq
 // check it out
+#include <math.h>
 
 #include <RV-3028-C7.h>
 
@@ -14,7 +15,7 @@ RV3028 rtc;
 #define LED_PIN     6
 
 // How many NeoPixels are attached to the Arduino?
-#define LED_COUNT  16
+#define LED_COUNT  180
 
 // NeoPixel brightness, 0 (min) to 255 (max)
 #define BRIGHTNESS 50 // Set BRIGHTNESS to about 1/5 (max = 255)
@@ -52,14 +53,31 @@ void setup() {
 
 }
 
+// TODO fill me in if strip lengths aren't always 15
+// std::map<int, int> numbers = {
+//   {0, 0},
+//   {1, 15},
+//   {2, 15},
+
+// }
+int fade = 255;
+int lastSeconds = 0;
+
 void loop() {
   if (rtc.updateTime() == false) //Updates the time variables from RTC
   {
     Serial.println("RTC failed to update");
-  } else {
-    String currentTime = rtc.stringTimeStamp();
-    paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds());
+    return;
   }
+
+  String currentTime = rtc.stringTimeStamp();
+  if (lastSeconds == rtc.getSeconds()) {
+    fade = fade * 0.97;
+  } else {
+    fade = 255;
+  }
+  paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds(), fade);
+  lastSeconds = rtc.getSeconds();
 
 }
 
@@ -74,35 +92,39 @@ void loop() {
 //   return ((strip.numPixels() + delta) % strip.numPixels()) * 255 / strip.numPixels();
 // }
 
-void paintTime(int hours, int mins, int secs) {
+int lengthOfHourHand = 3;
+int lengthOfNumberStrip = 15;
+
+void paintTime(int hours, int mins, int secs, int fade) {
+
+  int minuteHandOffset = lengthOfNumberStrip * mins;
+  // TODO correct for wherever we start around the circle
+  for (int i=minuteHandOffset; i<minuteHandOffset + lengthOfNumberStrip; i++) {
+    strip.setPixelColor(i, strip.ColorHSV(1000, 255, 255));
+  }
+
+  int secondHandOffset = lengthOfNumberStrip * secs;
+  int secondsCorrectForZigzag = floor(secs / 5) % 2; // TODO correct for this plus circle start
+  strip.setPixelColor(secondHandOffset, strip.ColorHSV(9000, 255, fade));
+
+  int hourHandOffset = lengthOfNumberStrip * hours;
+  // TODO correct for zigzag and circle start
+  for (int i=hourHandOffset; i<hourHandOffset + lengthOfHourHand; i++) {
+    strip.setPixelColor(i, strip.ColorHSV(5000, 255, 255));
+  }
+
+  strip.show();
+
+}
+
+void printTime(int hours, int mins, int secs) {
   Serial.print("the time is: ");
   Serial.print(hours);
   Serial.print(":");
   Serial.print(mins);
   Serial.print(":");
-  Serial.print(secs);
-  
-  int minsMarker = mins % 10;
-  for(int i=0; i<minsMarker; i++) {
-    strip.setPixelColor(i, strip.Color(0, 100, 100));
-  }
-  for(int i=minsMarker + 1; i<strip.numPixels(); i++) {
-    strip.setPixelColor(i, strip.Color(0, 0, 0));
-  }
-  strip.setPixelColor(minsMarker, strip.Color(255, 0, 0));
-  strip.show();
-  delay(500);
-  strip.setPixelColor(minsMarker, strip.Color(0, 0, 0));
-  strip.show();
-  delay(500);
+  Serial.println(secs);
 }
-
-// std::array<int, 3> getTime(int secsSinceMidnight) {
-//   int secs = secsSinceMidnight % 60;
-//   int mins = (secsSinceMidnight - secs) / 60;
-//   int hours = (secsSinceMidnight - (mins * 60)) / 3600;
-//   return {hours, mins, secs};
-// }
 
 // Fill strip pixels one after another with a color. Strip is NOT cleared
 // first; anything there will be covered pixel by pixel. Pass in color
