@@ -1,6 +1,10 @@
 // NeoPixel test program showing use of the WHITE channel for RGBW
 // pixels only (won't look correct on regular RGB NeoPixel strips).
 
+#include <RV-3028-C7.h>
+
+RV3028 rtc;
+
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
@@ -37,6 +41,14 @@ void setup() {
 #endif
   // END of Trinket-specific code.
 
+  Wire.begin();
+  while (rtc.begin() == false) {
+    Serial.println("Something went wrong, check wiring");
+    delay(1000);
+  }
+  Serial.println("RTC online!");
+
+
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(BRIGHTNESS);
@@ -44,31 +56,14 @@ void setup() {
 }
 
 void loop() {
-  int secs = secsSinceMidnight % 60;
-  int mins = (secsSinceMidnight - secs) / 60;
-  int hours = (secsSinceMidnight - (mins * 60)) / 3600;
+  if (rtc.updateTime() == false) //Updates the time variables from RTC
+  {
+    Serial.println("RTC failed to update");
+  } else {
+    String currentTime = rtc.stringTimeStamp();
+    paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds());
+  }
 
-  paintTime(hours, mins, secs);
-
-  // for(int i=0; i<strip.numPixels(); i++) {
-  //   tickWipe(30000, i);
-  //   delay(1000);
-  // }
-  // Serial.println("dasldfkj");
-  // Fill along the length of the strip in various colors...
-
-  // colorWipe(strip.Color(255,   0,   0)     , 50); // Red
-  // colorWipe(strip.Color(  0, 255,   0)     , 50); // Green
-  // colorWipe(strip.Color(  0,   0, 255)     , 50); // Blue
-  // colorWipe(strip.Color(  0,   0,   0, 255), 50); // True white (not RGB white)
-
-  // whiteOverRainbow(75, 5);
-
-  // pulseWhite(5);
-
-  // rainbowFade2White(3, 3, 1);
-  delay(500);
-  secsSinceMidnight++;
 }
 
 // void tickWipe(int hue, int tick) {
@@ -99,6 +94,7 @@ void paintTime(int hours, int mins, int secs) {
   delay(500);
   strip.setPixelColor(minsMarker, strip.Color(0, 0, 0));
   strip.show();
+  delay(500);
 }
 
 // std::array<int, 3> getTime(int secsSinceMidnight) {
