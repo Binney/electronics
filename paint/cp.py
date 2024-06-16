@@ -2,45 +2,61 @@ from adafruit_circuitplayground import cp
 import time
 import board
 import busio
+import digitalio
 
-a = 0
-b = -1
-colour = (10,10,10)
+button_blue = digitalio.DigitalInOut(board.A5)
+button_blue.switch_to_input(pull=digitalio.Pull.DOWN)
+blue_pressed = False
 
-def select_tool(num):
-    if num == 0:
-        print("pencil")
-    elif num == 1:
-        print("fill")
-    elif num == 2:
-        print("erase")
-    else:
-        print("line")
+button_red = digitalio.DigitalInOut(board.A2)
+button_red.switch_to_input(pull=digitalio.Pull.DOWN)
+red_pressed = False
 
-def select_colour(num):
-    if num == 0:
-        print("red")
-        return (30, 0, 0)
-    if num == 1:
-        print("yellow")
-        return (20, 10, 0)
-    if num == 2:
-        print("green")
-        return (0, 30, 0)
-    else:
-        print("blue")
-        return (0, 0, 30)
+button_green = digitalio.DigitalInOut(board.A3)
+button_green.switch_to_input(pull=digitalio.Pull.DOWN)
+green_pressed = False
+
+button_yellow = digitalio.DigitalInOut(board.A1)
+button_yellow.switch_to_input(pull=digitalio.Pull.DOWN)
+yellow_pressed = False
+
+def colour_pick(colour):
+    print("{ 'action': 'colour_select', 'colour': '" + colour + "' }")
 
 while True:
-    if cp.button_a:
-        a = (a + 1) % 4
-        select_tool(a)
+    if button_blue.value:
+        cp.pixels[1] = (0, 30, 100)
+        if not blue_pressed:
+            colour_pick("blue")
+            blue_pressed = True
+    else:
+        cp.pixels[1] = (0, 0, 0)
+        blue_pressed = False
 
-    if cp.button_b:
-        b = (b + 1) % 4
-        colour = select_colour(b)
+    if button_red.value:
+        cp.pixels[2] = (100, 0, 0)
+        if not red_pressed:
+            colour_pick("red")
+            red_pressed = True
+    else:
+        cp.pixels[2] = (0, 0, 0)
+        red_pressed = False
 
-    cp.pixels.fill((0,0,0))
-    cp.pixels[a] = colour
-    time.sleep(0.2)
+    if button_green.value:
+        cp.pixels[3] = (10, 100, 0)
+        if not green_pressed:
+            colour_pick("green")
+            green_pressed = True
+    else:
+        cp.pixels[3] = (0, 0, 0)
+        green_pressed = False
+
+    if button_yellow.value:
+        cp.pixels[4] = (100, 30, 0)
+        if not yellow_pressed:
+            colour_pick("yellow")
+            yellow_pressed = True
+    else:
+        cp.pixels[4] = (0, 0, 0)
+        yellow_pressed = False
 
