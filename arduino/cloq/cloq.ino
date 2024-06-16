@@ -1,5 +1,5 @@
-// NeoPixel test program showing use of the WHITE channel for RGBW
-// pixels only (won't look correct on regular RGB NeoPixel strips).
+// it's the cloq
+// check it out
 
 #include <RV-3028-C7.h>
 
@@ -10,8 +10,7 @@ RV3028 rtc;
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
-// Which pin on the Arduino is connected to the NeoPixels?
-// On a Trinket or Gemma we suggest changing this to 1:
+// D3 = GPIO6
 #define LED_PIN     6
 
 // How many NeoPixels are attached to the Arduino?
@@ -30,8 +29,6 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-
-int secsSinceMidnight = 20 * 3600 + 54 * 60 + 55;
 
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
@@ -88,6 +85,9 @@ void paintTime(int hours, int mins, int secs) {
   int minsMarker = mins % 10;
   for(int i=0; i<minsMarker; i++) {
     strip.setPixelColor(i, strip.Color(0, 100, 100));
+  }
+  for(int i=minsMarker + 1; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, strip.Color(0, 0, 0));
   }
   strip.setPixelColor(minsMarker, strip.Color(255, 0, 0));
   strip.show();
