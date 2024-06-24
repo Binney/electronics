@@ -51,15 +51,12 @@ void setup() {
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(BRIGHTNESS);
 
+  pulseWhite(30, 50);
+  pulseWhite(15, 100);
+  pulseWhite(5, 255);
+  pulseYellow(1);
 }
 
-// TODO fill me in if strip lengths aren't always 15
-// std::map<int, int> numbers = {
-//   {0, 0},
-//   {1, 15},
-//   {2, 15},
-
-// }
 int fade = 255;
 int lastSeconds = 0;
 
@@ -210,16 +207,31 @@ void whiteOverRainbow(int whiteSpeed, int whiteLength) {
   }
 }
 
-void pulseWhite(uint8_t wait) {
-  for(int j=0; j<256; j++) { // Ramp up from 0 to 255
+void pulseWhite(uint8_t wait, int max) {
+  for(int j=0; j<max; j++) { // Ramp up from 0 to 255
     // Fill entire strip with white at gamma-corrected brightness level 'j':
     strip.fill(strip.Color(0, 0, 0, strip.gamma8(j)));
     strip.show();
     delay(wait);
   }
 
-  for(int j=255; j>=0; j--) { // Ramp down from 255 to 0
+  for(int j=max; j>=0; j--) { // Ramp down from 255 to 0
     strip.fill(strip.Color(0, 0, 0, strip.gamma8(j)));
+    strip.show();
+    delay(wait);
+  }
+}
+
+void pulseYellow(uint8_t wait) {
+  for(int j=0; j<256; j++) { // Ramp up from 0 to 255
+    // Fill entire strip with white at gamma-corrected brightness level 'j':
+    strip.fill(strip.Color(strip.gamma8(j), strip.gamma8(j) / 2.5, 0, 0));
+    strip.show();
+    delay(wait);
+  }
+
+  for(int j=255; j>=0; j--) { // Ramp down from 255 to 0
+    strip.fill(strip.Color(strip.gamma8(j), strip.gamma8(j) / 2.5, 0, 0));
     strip.show();
     delay(wait);
   }
