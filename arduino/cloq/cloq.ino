@@ -39,12 +39,12 @@ void setup() {
 #endif
   // END of Trinket-specific code.
 
-  Wire.begin();
-  while (rtc.begin() == false) {
-    Serial.println("Something went wrong, check wiring");
-    delay(1000);
-  }
-  Serial.println("RTC online!");
+  // Wire.begin();
+  // while (rtc.begin() == false) {
+  //   Serial.println("Something went wrong, check wiring");
+  //   delay(1000);
+  // }
+  // Serial.println("RTC online!");
 
 
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
@@ -64,20 +64,30 @@ int fade = 255;
 int lastSeconds = 0;
 
 void loop() {
-  if (rtc.updateTime() == false) //Updates the time variables from RTC
-  {
-    Serial.println("RTC failed to update");
-    return;
+  for (int i=0; i<12; i++) {
+    strip.setPixelColor(handStartFor(i), strip.ColorHSV(i * 65536L / 12));
+    strip.setPixelColor(handEndFor(i), strip.Color(0, 0, 0, 255));//strip.ColorHSV(i * 65536L / 12));
+    strip.show();
+    delay(100);
   }
+  delay(1000);
+  strip.clear();
+  strip.show();
 
-  String currentTime = rtc.stringTimeStamp();
-  if (lastSeconds == rtc.getSeconds()) {
-    fade = fade * 0.97;
-  } else {
-    fade = 255;
-  }
-  paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds(), fade);
-  lastSeconds = rtc.getSeconds();
+  // if (rtc.updateTime() == false) //Updates the time variables from RTC
+  // {
+  //   Serial.println("RTC failed to update");
+  //   return;
+  // }
+
+  // String currentTime = rtc.stringTimeStamp();
+  // if (lastSeconds == rtc.getSeconds()) {
+  //   fade = fade * 0.97;
+  // } else {
+  //   fade = 255;
+  // }
+  // paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds(), fade);
+  // lastSeconds = rtc.getSeconds();
 
 }
 
@@ -104,7 +114,7 @@ void paintTime(int hours, int mins, int secs, int fade) {
   }
 
   int secondHandOffset = lengthOfNumberStrip * secs;
-  int secondsCorrectForZigzag = floor(secs / 5) % 2; // TODO correct for this plus circle start
+  int secondsCorrectForZigzag = 3;//floor(secs / 5) % 2; // TODO correct for this plus circle start
   strip.setPixelColor(secondHandOffset, strip.ColorHSV(9000, 255, fade));
 
   int hourHandOffset = lengthOfNumberStrip * hours;
@@ -124,6 +134,26 @@ void printTime(int hours, int mins, int secs) {
   Serial.print(mins);
   Serial.print(":");
   Serial.println(secs);
+}
+
+int handStartFor(int digit) {
+  if (digit >= 6) {
+    return (digit - 6) * 15;
+  }
+  if (digit >= 4) {
+    return (digit + 6) * 15 + 1;
+  }
+  return (digit + 6) * 15;
+}
+
+int handEndFor(int digit) {
+  if (digit >= 6) {
+    return (digit - 5) * 15 - 1;
+  }
+  if (digit == 3 || digit == 4) {
+    return (digit + 7) * 15;
+  }
+  return (digit + 7) * 15 - 1;
 }
 
 // Fill strip pixels one after another with a color. Strip is NOT cleared
