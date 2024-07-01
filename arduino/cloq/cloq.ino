@@ -62,11 +62,11 @@ int lastMins = 0;
 int lastHours = 20;
 
 void loop() {
+  strip.clear();
   lastMins++;
   if (lastMins >= 60) {
     lastMins = 0;
     lastHours++;
-    strip.clear();
   }
   paintTime(lastHours, lastMins, 0, 255, 0);
   delay(100);
@@ -155,15 +155,20 @@ void paintTime(int hours, int mins, int secs, int hue, int variance) {
 
 void paintMins(int mins) {
   int hand = sixtyToTwelve(mins);
-  int handStart = handStartFor(hand);
-  int handEnd = handEndFor(hand);
-
-  int start = handStart < handEnd ? handStart : handEnd;
-  int end = handStart < handEnd ? handEnd : handStart;
-
-  for (int i=start; i<=end; i++) {
-    strip.setPixelColor(i, strip.ColorHSV(0, 255, 255));
+  int end = handEndFor(hand);
+  for (int i=0; i<64; i++) {
+    strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(), strip.ColorHSV(0, 255, 255 - (i * 4)));
   }
+
+  // int handStart = handStartFor(hand);
+  // int handEnd = handEndFor(hand);
+
+  // int start = handStart < handEnd ? handStart : handEnd;
+  // int end = handStart < handEnd ? handEnd : handStart;
+
+  // for (int i=start; i<=end; i++) {
+  //   strip.setPixelColor(i, strip.ColorHSV(0, 255, 255 - ));
+  // }
 }
 
 void paintHour(int hour) {
