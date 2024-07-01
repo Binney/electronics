@@ -58,11 +58,18 @@ void setup() {
 
 int fade = 255;
 int lastSeconds = 0;
+int lastMins = 0;
+int lastHours = 20;
 
 void loop() {
-  lastSeconds++;
-  paintTime(20, 17, lastSeconds, 255);
-  delay(1000);
+  lastMins++;
+  if (lastMins >= 60) {
+    lastMins = 0;
+    lastHours++;
+    strip.clear();
+  }
+  paintTime(lastHours, lastMins, 0, 255, 0);
+  delay(100);
 
   //wipeNumbers();
 
@@ -140,26 +147,34 @@ void wipeNumbers() {
 int lengthOfHourHand = 3;
 int lengthOfNumberStrip = 15;
 
-void paintTime(int hours, int mins, int secs, int fade) {
-
-  int minuteHandOffset = lengthOfNumberStrip * mins;
-  // TODO correct for wherever we start around the circle
-  for (int i=minuteHandOffset; i<minuteHandOffset + lengthOfNumberStrip; i++) {
-    strip.setPixelColor(i, strip.ColorHSV(1000, 255, 255));
-  }
-
-  int secondHandOffset = lengthOfNumberStrip * secs;
-  int secondsCorrectForZigzag = 3;//floor(secs / 5) % 2; // TODO correct for this plus circle start
-  strip.setPixelColor(secondHandOffset, strip.ColorHSV(9000, 255, fade));
-
-  int hourHandOffset = lengthOfNumberStrip * hours;
-  // TODO correct for zigzag and circle start
-  for (int i=hourHandOffset; i<hourHandOffset + lengthOfHourHand; i++) {
-    strip.setPixelColor(i, strip.ColorHSV(5000, 255, 255));
-  }
-
+void paintTime(int hours, int mins, int secs, int hue, int variance) {
+  paintMins(mins);
+  paintHour(hours % 12);
   strip.show();
+}
 
+void paintMins(int mins) {
+  int hand = sixtyToTwelve(mins);
+  int handStart = handStartFor(hand);
+  int handEnd = handEndFor(hand);
+
+  int start = handStart < handEnd ? handStart : handEnd;
+  int end = handStart < handEnd ? handEnd : handStart;
+
+  for (int i=start; i<=end; i++) {
+    strip.setPixelColor(i, strip.ColorHSV(0, 255, 255));
+  }
+}
+
+void paintHour(int hour) {
+  int handStart = handStartFor(hour);
+  int handEnd = handEndFor(hour);
+
+  int start = handStart < handEnd ? handEnd : handStart;
+  
+  for (int i=start; i<start+lengthOfHourHand; i++) {
+    strip.setPixelColor(i, strip.Color(0, 0, 0, 255));
+  }
 }
 
 void printTime(int hours, int mins, int secs) {
@@ -189,6 +204,10 @@ int handEndFor(int digit) {
     return (digit + 7) * 15;
   }
   return (digit + 7) * 15 - 1;
+}
+
+int sixtyToTwelve(int x) {
+  return (x - (x % 5)) / 5;
 }
 
 // Fill strip pixels one after another with a color. Strip is NOT cleared
