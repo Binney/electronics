@@ -38,7 +38,7 @@ void setup() {
   clock_prescale_set(clock_div_1);
 #endif
   // END of Trinket-specific code.
-
+  
   // Wire.begin();
   // while (rtc.begin() == false) {
   //   Serial.println("Something went wrong, check wiring");
@@ -46,22 +46,50 @@ void setup() {
   // }
   // Serial.println("RTC online!");
 
-
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(BRIGHTNESS);
 
-  pulseWhite(30, 50);
-  pulseWhite(15, 100);
-  pulseWhite(5, 255);
-  pulseYellow(1);
+  // pulseWhite(30, 50);
+  // pulseWhite(15, 100);
+  // pulseWhite(5, 255);
+  // pulseYellow(1);
 }
 
 int fade = 255;
 int lastSeconds = 0;
 
 void loop() {
-  for (int i=1; i<=12; i++) { // Clocks are 1-indexed ok
+  lastSeconds++;
+  paintTime(20, 17, lastSeconds, 255);
+  delay(1000);
+
+  //wipeNumbers();
+
+  //whiteOverRainbow(75, 5);
+
+  //pulseYellow(1);
+
+  //rainbowFade2White(3, 3, 1);
+  // if (rtc.updateTime() == false) //Updates the time variables from RTC
+  // {
+  //   Serial.println("RTC failed to update");
+  //   return;
+  // }
+
+  // String currentTime = rtc.stringTimeStamp();
+  // if (lastSeconds == rtc.getSeconds()) {
+  //   fade = fade * 0.97;
+  // } else {
+  //   fade = 255;
+  // }
+  // paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds(), fade);
+  // lastSeconds = rtc.getSeconds();
+
+}
+
+void wipeNumbers() {
+    for (int i=1; i<=12; i++) { // Clocks are 1-indexed ok
     int start = handStartFor(i);
     int end = handEndFor(i);
     if (i % 2 == 0) {
@@ -95,21 +123,6 @@ void loop() {
     }
     strip.clear();
   }
-
-  // if (rtc.updateTime() == false) //Updates the time variables from RTC
-  // {
-  //   Serial.println("RTC failed to update");
-  //   return;
-  // }
-
-  // String currentTime = rtc.stringTimeStamp();
-  // if (lastSeconds == rtc.getSeconds()) {
-  //   fade = fade * 0.97;
-  // } else {
-  //   fade = 255;
-  // }
-  // paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds(), fade);
-  // lastSeconds = rtc.getSeconds();
 
 }
 
