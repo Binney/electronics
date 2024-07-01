@@ -73,7 +73,7 @@ void loop() {
   // "Lounge":
   // paintTime(lastHours, lastMins % 60, 0, time, 75);
   // ain't got a name for this one yet
-  paintTime(lastHours, lastMins % 60, 0, time, 200);
+  paintTime(lastHours, lastMins % 60, 0, time, 200, (time % 5000) * 10 / 5000);
 
   lastTime = time;
   // delay(100);
@@ -154,20 +154,27 @@ void wipeNumbers() {
 int lengthOfHourHand = 3;
 int lengthOfNumberStrip = 15;
 
-void paintTime(int hours, int mins, int secs, uint32_t hue, int variance) {
-  paintMins(mins, hue, variance, 0.99999);
+void paintTime(int hours, int mins, int secs, uint32_t hue, int variance, int fade) {
+  paintMins(mins, hue, variance, fade);
   paintHour(hours % 12);
   strip.show();
 }
 
-void paintMins(int mins, uint32_t hue, int hue_spread, long falloff) {
+void paintMins(int mins, uint32_t hue, int hue_spread, int fade) {
   int hand = sixtyToTwelve(mins);
   int end = handEndFor(hand);
-  long fade = 255.0;
   for (int i=0; i<75; i++) {
-    fade = fade * falloff;
+    int brightness = floor(lerp(255.0, 0.0, i / (75.0 - fade)));
+    if (brightness < 0) brightness = 0;
+    if (i == 72) {
+      Serial.println(brightness);
+      Serial.println(75 - fade);
+      Serial.println(i / (75.0 - fade));
+      Serial.println(lerp(255.0, 0.0, i / (75.0 - fade)));
+    }
     strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(),
-      strip.ColorHSV(hue + (65536L * i / hue_spread), 255, 255 - (i * 3)));
+      // strip.ColorHSV(hue + (65536L * i / hue_spread), 255, 255 - (i * 3)));
+      strip.ColorHSV(hue + (65536L * i / hue_spread), 255, brightness));
   }
 
   // int handStart = handStartFor(hand);
@@ -179,6 +186,11 @@ void paintMins(int mins, uint32_t hue, int hue_spread, long falloff) {
   // for (int i=start; i<=end; i++) {
   //   strip.setPixelColor(i, strip.ColorHSV(0, 255, 255 - ));
   // }
+}
+
+int lerp(float a, float b, float t) {
+  // https://en.cppreference.com/w/cpp/numeric/lerp
+  return a + t * (b - a);
 }
 
 void paintHour(int hour) {
