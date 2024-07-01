@@ -68,7 +68,13 @@ void loop() {
   int time = millis();
   lastMins = floor(time / 1000);
   lastHours = floor(time / (5000 * 60));
-  paintTime(lastHours, lastMins % 60, 0, time, 0.2);
+  // "Tropick":
+  // paintTime(lastHours, lastMins % 60, 0, time, 20);
+  // "Lounge":
+  // paintTime(lastHours, lastMins % 60, 0, time, 75);
+  // ain't got a name for this one yet
+  paintTime(lastHours, lastMins % 60, 0, time, 200);
+
   lastTime = time;
   // delay(100);
 
@@ -148,19 +154,20 @@ void wipeNumbers() {
 int lengthOfHourHand = 3;
 int lengthOfNumberStrip = 15;
 
-void paintTime(int hours, int mins, int secs, uint32_t hue, long variance) {
-  paintMins(mins, hue);//, variance, 64 + floor(random(-5, 6)));
+void paintTime(int hours, int mins, int secs, uint32_t hue, int variance) {
+  paintMins(mins, hue, variance, 0.99999);
   paintHour(hours % 12);
   strip.show();
 }
 
-void paintMins(int mins, uint32_t hue) {//, long hue_spread = 1.0, int size = 64) {
-  int hue_spread = 1;
-  int size = 64;
+void paintMins(int mins, uint32_t hue, int hue_spread, long falloff) {
   int hand = sixtyToTwelve(mins);
   int end = handEndFor(hand);
-  for (int i=0; i<size; i++) {
-    strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(), strip.ColorHSV(hue + 65536L * hue_spread * i, 255, 255 - (i * 4)));
+  long fade = 255.0;
+  for (int i=0; i<75; i++) {
+    fade = fade * falloff;
+    strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(),
+      strip.ColorHSV(hue + (65536L * i / hue_spread), 255, 255 - (i * 3)));
   }
 
   // int handStart = handStartFor(hand);
