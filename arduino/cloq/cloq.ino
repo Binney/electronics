@@ -45,6 +45,7 @@ void setup() {
   //   delay(1000);
   // }
   // Serial.println("RTC online!");
+  randomSeed(analogRead(0));
 
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
@@ -60,16 +61,16 @@ int fade = 255;
 int lastSeconds = 0;
 int lastMins = 0;
 int lastHours = 20;
+int lastTime = 0;
 
 void loop() {
   strip.clear();
-  lastMins++;
-  if (lastMins >= 60) {
-    lastMins = 0;
-    lastHours++;
-  }
-  paintTime(lastHours, lastMins, 0, 255, 0);
-  delay(100);
+  int time = millis();
+  lastMins = floor(time / 1000);
+  lastHours = floor(time / (5000 * 60));
+  paintTime(lastHours, lastMins % 60, 0, time, 0.2);
+  lastTime = time;
+  // delay(100);
 
   //wipeNumbers();
 
@@ -147,17 +148,19 @@ void wipeNumbers() {
 int lengthOfHourHand = 3;
 int lengthOfNumberStrip = 15;
 
-void paintTime(int hours, int mins, int secs, int hue, int variance) {
-  paintMins(mins);
+void paintTime(int hours, int mins, int secs, uint32_t hue, long variance) {
+  paintMins(mins, hue);//, variance, 64 + floor(random(-5, 6)));
   paintHour(hours % 12);
   strip.show();
 }
 
-void paintMins(int mins) {
+void paintMins(int mins, uint32_t hue) {//, long hue_spread = 1.0, int size = 64) {
+  int hue_spread = 1;
+  int size = 64;
   int hand = sixtyToTwelve(mins);
   int end = handEndFor(hand);
-  for (int i=0; i<64; i++) {
-    strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(), strip.ColorHSV(0, 255, 255 - (i * 4)));
+  for (int i=0; i<size; i++) {
+    strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(), strip.ColorHSV(hue + 65536L * hue_spread * i, 255, 255 - (i * 4)));
   }
 
   // int handStart = handStartFor(hand);
