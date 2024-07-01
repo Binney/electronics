@@ -166,12 +166,6 @@ void paintMins(int mins, uint32_t hue, int hue_spread, int fade) {
   for (int i=0; i<75; i++) {
     int brightness = floor(lerp(255.0, 0.0, i / (75.0 - fade)));
     if (brightness < 0) brightness = 0;
-    if (i == 72) {
-      Serial.println(brightness);
-      Serial.println(75 - fade);
-      Serial.println(i / (75.0 - fade));
-      Serial.println(lerp(255.0, 0.0, i / (75.0 - fade)));
-    }
     strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(),
       // strip.ColorHSV(hue + (65536L * i / hue_spread), 255, 255 - (i * 3)));
       strip.ColorHSV(hue + (65536L * i / hue_spread), 255, brightness));
