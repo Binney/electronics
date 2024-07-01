@@ -167,14 +167,20 @@ void paintMins(int mins) {
 }
 
 void paintHour(int hour) {
-  int handStart = handStartFor(hour);
-  int handEnd = handEndFor(hour);
+  int start = handInsideFor(hour);
+  if (hour % 2 == 0) {
+    // Count downwards
+    for (int i=start; i>start-lengthOfHourHand; i--) {
+      strip.setPixelColor(i, strip.Color(0, 0, 0, 255));
+    }
+  } else {
+    // Count upwards
+    for (int i=start; i<start+lengthOfHourHand; i++) {
+      strip.setPixelColor(i, strip.Color(100, 50, 0, 255));
+    }
 
-  int start = handStart < handEnd ? handEnd : handStart;
-  
-  for (int i=start; i<start+lengthOfHourHand; i++) {
-    strip.setPixelColor(i, strip.Color(0, 0, 0, 255));
   }
+
 }
 
 void printTime(int hours, int mins, int secs) {
@@ -184,6 +190,20 @@ void printTime(int hours, int mins, int secs) {
   Serial.print(mins);
   Serial.print(":");
   Serial.println(secs);
+}
+
+int handInsideFor(int digit) {
+  if (digit % 2 == 0) {
+    return handEndFor(digit);
+  }
+  return handStartFor(digit);
+}
+
+int handOutsideFor(int digit) {
+  if (digit % 2 == 0) {
+    return handStartFor(digit);
+  }
+  return handEndFor(digit);
 }
 
 int handStartFor(int digit) {
