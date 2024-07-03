@@ -67,12 +67,12 @@ void loop() {
   strip.clear();
   int time = millis();
   lastMins = floor(time / 1000);
-  lastHours = floor(time / (5000 * 60));
+  lastHours = floor(time / (1000 * 60));
   // "Tropick":
-  // paintTime(lastHours, lastMins % 60, 0, time, 20);
+  // paintTime(lastHours, lastMins % 60, 0, time, 20, (time % 5000) * 10 / 5000);
   // "Lounge":
-  // paintTime(lastHours, lastMins % 60, 0, time, 75);
-  // ain't got a name for this one yet
+  // paintTime(lastHours, lastMins % 60, 0, time, 75, (time % 5000) * 10 / 5000);
+  // "Gentle":
   paintTime(lastHours, lastMins % 60, 0, time, 200, (time % 5000) * 10 / 5000);
 
   lastTime = time;
@@ -168,7 +168,7 @@ void paintMins(int mins, uint32_t hue, int hue_spread, int fade) {
     if (brightness < 0) brightness = 0;
     strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(),
       // strip.ColorHSV(hue + (65536L * i / hue_spread), 255, 255 - (i * 3)));
-      strip.ColorHSV(hue + (65536L * i / hue_spread), 255, brightness));
+      strip.ColorHSV(hue - (65536L * i / hue_spread), 255, brightness));
   }
 
   // int handStart = handStartFor(hand);
