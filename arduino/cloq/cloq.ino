@@ -11,6 +11,10 @@ RV3028 rtc;
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
+#include "InputDebounce.h"
+
+#define BUTTON_DEBOUNCE_DELAY   20   // [ms]
+
 // D3 = GPIO6
 #define LED_PIN     6
 
@@ -30,6 +34,11 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
+
+int buttonPin = 12;
+static InputDebounce switchButton;
+
+int mode = 0;
 
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
@@ -51,11 +60,37 @@ void setup() {
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(BRIGHTNESS);
 
+  pinMode(buttonPin, INPUT);
   // pulseWhite(30, 50);
   // pulseWhite(15, 100);
   // pulseWhite(5, 255);
   // pulseYellow(1);
+
+  switchButton.registerCallbacks(onButtonPressed, noop_2, noop, noop);
+  switchButton.setup(buttonPin, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
 }
+
+void onButtonPressed(uint8_t pin) {
+  Serial.println("Pressed button!");
+  mode = (mode + 1) % 2;
+}
+
+void noop_2(uint8_t pin) {
+
+}
+
+void noop(uint8_t pin, unsigned long duration) {
+
+}
+
+uint32_t* palette = new uint32_t[6]{
+  strip.ColorHSV(0 * 256),
+  strip.ColorHSV(15 * 256),
+  strip.ColorHSV(122 * 256),
+  strip.Color(230, 0, 160),
+  strip.Color(19, 0, 155),
+  strip.Color(225, 172, 187)
+};
 
 int fade = 255;
 int lastSeconds = 0;
@@ -64,18 +99,16 @@ int lastHours = 20;
 int lastTime = 0;
 
 void loop() {
-  strip.clear();
-  int time = millis();
-  lastMins = floor(time / 1000);
-  lastHours = floor(time / (1000 * 60));
-  // "Tropick":
-  // paintTime(lastHours, lastMins % 60, 0, time, 20, (time % 5000) * 10 / 5000);
-  // "Lounge":
-  // paintTime(lastHours, lastMins % 60, 0, time, 75, (time % 5000) * 10 / 5000);
-  // "Gentle":
-  paintTime(lastHours, lastMins % 60, 0, time, 200, (time % 5000) * 10 / 5000);
+  int now = millis();
+  switchButton.process(now);
 
-  lastTime = time;
+  if (mode == 0) {
+    // Clock
+    bumpClock(now);
+  } else {
+    bumpPalette(now);
+  }
+  // lastTime = time;
   // delay(100);
 
   //wipeNumbers();
@@ -100,6 +133,64 @@ void loop() {
   // paintTime(rtc.getHours(), rtc.getMinutes(), rtc.getSeconds(), fade);
   // lastSeconds = rtc.getSeconds();
 
+}
+
+void bumpClock(int time) {
+  strip.clear();
+  lastMins = floor(time / 1000);
+  lastHours = floor(time / (1000 * 60));
+  // "Tropick":
+  // paintTime(lastHours, lastMins % 60, 0, time, 20, (time % 5000) * 10 / 5000);
+  // "Lounge":
+  // paintTime(lastHours, lastMins % 60, 0, time, 75, (time % 5000) * 10 / 5000);
+  // "Gentle":
+  paintTime(lastHours, lastMins % 60, 0, time, 200, (time % 5000) * 10 / 5000);
+
+}
+
+void bumpPalette(int time) {
+  showPalette(floor(time / 100));
+}
+
+void showPalette(int offset) {
+  int interval = strip.numPixels() / 3; // TODO count palette size
+  int spacing = 20;
+  for (int segment=0; segment<3; segment++) {
+    uint32_t firstColour = palette[segment % 3];
+    uint32_t secondColour = palette[(segment + 1) % 3];
+    for (int i=0; i<interval - spacing; i++) {
+      strip.setPixelColor((segment * interval + i + offset) % strip.numPixels(), interpolateRgb(firstColour, secondColour, static_cast<float>(i) / static_cast<float>(interval)));
+    }
+    for (int i=interval - spacing; i<interval; i++) {
+      strip.setPixelColor((segment * interval + i + offset) % strip.numPixels(), secondColour);
+    }
+  }
+  strip.show();
+
+}
+
+uint32_t interpolateRgb(uint32_t x, uint32_t y, float t) {
+  uint8_t r = red(x) + (red(y) - red(x)) * t;
+  uint8_t g = green(x) + (green(y) - green(x)) * t;
+  uint8_t b = blue(x) + (blue(y) - blue(x)) * t;
+  uint8_t w = white(x) + (white(y) - white(x)) * t;
+  return strip.Color(r, g, b, w);
+}
+
+uint8_t red(uint32_t colour) {
+  return (colour >> 16) & 0xFF;
+}
+
+uint8_t green(uint32_t colour) {
+  return (colour >> 8) & 0xFF;
+}
+
+uint8_t blue(uint32_t colour) {
+  return colour & 0xFF;
+}
+
+uint8_t white(uint32_t colour) {
+  return colour & 0xFF;
 }
 
 void wipeNumbers() {
