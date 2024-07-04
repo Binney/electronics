@@ -66,21 +66,13 @@ void setup() {
   // pulseWhite(5, 255);
   // pulseYellow(1);
 
-  switchButton.registerCallbacks(onButtonPressed, noop_2, noop, noop);
+  switchButton.registerCallbacks(onButtonPressed, NULL, NULL, NULL);
   switchButton.setup(buttonPin, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
 }
 
 void onButtonPressed(uint8_t pin) {
   Serial.println("Pressed button!");
-  mode = (mode + 1) % 2;
-}
-
-void noop_2(uint8_t pin) {
-
-}
-
-void noop(uint8_t pin, unsigned long duration) {
-
+  mode = (mode + 1) % 3;
 }
 
 uint32_t* palette = new uint32_t[6]{
@@ -98,6 +90,11 @@ int lastMins = 0;
 int lastHours = 20;
 int lastTime = 0;
 
+// White over rainbow
+int      head          = 5;
+int      tail          = 0;
+uint32_t firstPixelHue = 0;
+
 void loop() {
   int now = millis();
   switchButton.process(now);
@@ -105,6 +102,8 @@ void loop() {
   if (mode == 0) {
     // Clock
     bumpClock(now);
+  } else if (mode == 1) {
+    bumpWhiteOverRainbow(now);
   } else {
     bumpPalette(now);
   }
@@ -355,44 +354,33 @@ void colorWipe(uint32_t color, int wait) {
   }
 }
 
-void whiteOverRainbow(int whiteSpeed, int whiteLength) {
-
-  if(whiteLength >= strip.numPixels()) whiteLength = strip.numPixels() - 1;
-
-  int      head          = whiteLength - 1;
-  int      tail          = 0;
-  int      loops         = 3;
-  int      loopNum       = 0;
-  uint32_t lastTime      = millis();
-  uint32_t firstPixelHue = 0;
-
-  for(;;) { // Repeat forever (or until a 'break' or 'return')
-    for(int i=0; i<strip.numPixels(); i++) {  // For each pixel in strip...
-      if(((i >= tail) && (i <= head)) ||      //  If between head & tail...
-         ((tail > head) && ((i >= tail) || (i <= head)))) {
-        strip.setPixelColor(i, strip.Color(0, 0, 0, 255)); // Set white
-      } else {                                             // else set rainbow
-        int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
-        strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
-      }
+int whiteSpeed = 75;
+int whiteLength = 5;
+void bumpWhiteOverRainbow(int now) {
+  for(int i=0; i<strip.numPixels(); i++) {  // For each pixel in strip...
+    if(((i >= tail) && (i <= head)) ||      //  If between head & tail...
+        ((tail > head) && ((i >= tail) || (i <= head)))) {
+      strip.setPixelColor(i, strip.Color(0, 0, 0, 255)); // Set white
+    } else {                                             // else set rainbow
+      int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
+      strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
     }
+  }
 
-    strip.show(); // Update strip with new contents
-    // There's no delay here, it just runs full-tilt until the timer and
-    // counter combination below runs out.
+  strip.show(); // Update strip with new contents
+  // There's no delay here, it just runs full-tilt until the timer and
+  // counter combination below runs out.
 
-    firstPixelHue += 40; // Advance just a little along the color wheel
+  firstPixelHue += 40; // Advance just a little along the color wheel
 
-    if((millis() - lastTime) > whiteSpeed) { // Time to update head/tail?
-      if(++head >= strip.numPixels()) {      // Advance head, wrap around
-        head = 0;
-        if(++loopNum >= loops) return;
-      }
-      if(++tail >= strip.numPixels()) {      // Advance tail, wrap around
-        tail = 0;
-      }
-      lastTime = millis();                   // Save time of last movement
+  if((now - lastTime) > whiteSpeed) { // Time to update head/tail?
+    if(++head >= strip.numPixels()) {      // Advance head, wrap around
+      head = 0;
     }
+    if(++tail >= strip.numPixels()) {      // Advance tail, wrap around
+      tail = 0;
+    }
+    lastTime = now;                   // Save time of last movement
   }
 }
 
