@@ -386,6 +386,12 @@ void bumpWhiteOverRainbow(int now) {
   }
 }
 
+int stars[3][2] = {
+  {3, 255},
+  {100, 100},
+  {169, 69}
+};
+
 void landslide(int now) {
   for(int i=0; i<strip.numPixels() / 2; i++) {
     int diff = i * 10000L / strip.numPixels() - 5000L;
@@ -395,9 +401,20 @@ void landslide(int now) {
     int diff = 5000L - i * 10000L / strip.numPixels();
     strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(diff)));
   }
+  for (int i=0; i<3; i++) {
+    int value = stars[i][1];
+    if (value <= 0) {
+      // Remove key and roll another
+      int newStar = floor(random(strip.numPixels()));
+      stars[i][0] = newStar;
+      stars[i][1] = 255 - floor(random(50));
+    } else {
+      strip.setPixelColor(stars[i][0], strip.ColorHSV(0, 0, value));
+      stars[i][1] = value - 1;
+    }
+  }
   strip.show();
   firstPixelHue += 40;
-
 }
 
 void pulseWhite(uint8_t wait, int max) {
