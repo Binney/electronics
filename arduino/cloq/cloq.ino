@@ -72,7 +72,7 @@ void setup() {
 
 void onButtonPressed(uint8_t pin) {
   Serial.println("Pressed button!");
-  mode = (mode + 1) % 3;
+  mode = (mode + 1) % 4;
 }
 
 uint32_t* palette = new uint32_t[6]{
@@ -104,6 +104,8 @@ void loop() {
     bumpClock(now);
   } else if (mode == 1) {
     bumpWhiteOverRainbow(now);
+  } else if (mode == 2) {
+    landslide(now);
   } else {
     bumpPalette(now);
   }
@@ -382,6 +384,20 @@ void bumpWhiteOverRainbow(int now) {
     }
     lastTime = now;                   // Save time of last movement
   }
+}
+
+void landslide(int now) {
+  for(int i=0; i<strip.numPixels() / 2; i++) {
+    int diff = i * 10000L / strip.numPixels() - 5000L;
+    strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(diff)));
+  }
+  for(int i=strip.numPixels() / 2; i<strip.numPixels(); i++) {
+    int diff = 5000L - i * 10000L / strip.numPixels();
+    strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(diff)));
+  }
+  strip.show();
+  firstPixelHue += 40;
+
 }
 
 void pulseWhite(uint8_t wait, int max) {
