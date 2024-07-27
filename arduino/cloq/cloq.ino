@@ -72,7 +72,7 @@ void setup() {
 
 void onButtonPressed(uint8_t pin) {
   Serial.println("Pressed button!");
-  mode = (mode + 1) % 5;
+  mode = (mode + 1) % 6;
 }
 
 uint32_t* test_palette = new uint32_t[6]{
@@ -118,8 +118,10 @@ void loop() {
     transFlag(now);
   } else if (mode == 3) {
     landslide(now);
-  } else {
+  } else if (mode == 4) {
     bumpPalette(now);
+  } else {
+    radiateRainbow(now);
   }
   // lastTime = time;
   // delay(100);
@@ -163,6 +165,25 @@ void bumpClock(int time) {
 
 void bumpPalette(int time) {
   showPalette(floor(time / 100));
+}
+
+void radiateRainbow(int time) {
+  strip.clear();
+  int step = time / 200;
+  long radiateLength = 65536L / 40;
+  for (int number=0; number<12; number++) {
+      int start = handStartFor(number);
+      int end = handEndFor(number);
+      for (int i=0; i<end - start; i++) {
+      if (number % 2 == 0) {
+        strip.setPixelColor(start + i, strip.ColorHSV(firstPixelHue + i * radiateLength));
+      } else {
+        strip.setPixelColor(end - i, strip.ColorHSV(firstPixelHue + i * radiateLength));
+      }
+    }
+  }
+  firstPixelHue += 40;
+  strip.show();
 }
 
 void showPalette(int offset) {
@@ -237,7 +258,6 @@ void stepAroundEdge(int time, uint32_t* palette, int palette_size) {
 void radiatePalette(int time, uint32_t* palette, int palette_size) {
   int step = time / 200;
   int radiateLength = 8;
-  // 3 at a time
   for (int number=0; number<12; number++) {
       int start = handStartFor(number);
       int end = handEndFor(number);
