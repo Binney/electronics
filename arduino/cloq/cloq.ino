@@ -75,13 +75,23 @@ void onButtonPressed(uint8_t pin) {
   mode = (mode + 1) % 5;
 }
 
-uint32_t* palette = new uint32_t[6]{
+uint32_t* test_palette = new uint32_t[6]{
   strip.ColorHSV(0 * 256),
   strip.ColorHSV(15 * 256),
   strip.ColorHSV(122 * 256),
   strip.Color(230, 0, 160),
   strip.Color(19, 0, 155),
   strip.Color(225, 172, 187)
+};
+
+uint32_t transPink = strip.ColorHSV(305 * 65536L / 360);
+uint32_t transBlue = strip.ColorHSV(65536L / 2);
+uint32_t white = strip.Color(0, 0, 0, 255);
+
+uint32_t* trans_flag = new uint32_t[6]{
+  transBlue,
+  white,
+  transPink
 };
 
 int fade = 255;
@@ -159,8 +169,8 @@ void showPalette(int offset) {
   int interval = strip.numPixels() / 3; // TODO count palette size
   int spacing = 20;
   for (int segment=0; segment<3; segment++) {
-    uint32_t firstColour = palette[segment % 3];
-    uint32_t secondColour = palette[(segment + 1) % 3];
+    uint32_t firstColour = test_palette[segment % 3];
+    uint32_t secondColour = test_palette[(segment + 1) % 3];
     for (int i=0; i<interval - spacing; i++) {
       strip.setPixelColor((segment * interval + i + offset) % strip.numPixels(), interpolateRgb(firstColour, secondColour, static_cast<float>(i) / static_cast<float>(interval)));
     }
@@ -196,40 +206,23 @@ uint8_t whiteFrom(uint32_t colour) {
   return colour & 0xFF;
 }
 
-uint32_t transPink = strip.ColorHSV(305 * 65536L / 360);
-uint32_t transBlue = strip.ColorHSV(65536L / 2);
-uint32_t white = strip.Color(0, 0, 0, 255);
-
 void transFlag(int time) {
   strip.clear();
-  stepAroundEdge();
+  // stepAroundEdge(time, trans_flag, 3);
+  stepChunks(time, trans_flag, 3);
   strip.show();
 }
 
-void stepChunks() {
-  for (int i=0; i<strip.numPixels() / 3; i++) {
-    strip.setPixelColor(i, transBlue);
-  }
-  for (int i=strip.numPixels() / 3; i<strip.numPixels() * 2 / 3; i++) {
-    strip.setPixelColor(i, white);
-  }
-  for (int i=strip.numPixels() * 2 / 3; i<strip.numPixels(); i++) {
-    strip.setPixelColor(i, transPink);
+void stepChunks(int time, uint32_t* palette, int palette_size) {
+  for (int i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, palette[palette_size * i / strip.numPixels()]);
   }
 }
 
-void stepAroundEdge() {
+void stepAroundEdge(int time, uint32_t* palette, int palette_size) {
+  // I 300% don't understand c++
   for (int i=1; i<=12; i++) {
-    switch (i % 3) {
-      case 0:
-        paintNumber(i, transBlue);
-        break;
-      case 1:
-        paintNumber(i, white);
-        break;
-      default:
-        paintNumber(i, transPink);
-    }
+    paintNumber(i, palette[(i + time / 2000) % palette_size]);
   }
 }
 
