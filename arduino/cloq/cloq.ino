@@ -173,40 +173,72 @@ void showPalette(int offset) {
 }
 
 uint32_t interpolateRgb(uint32_t x, uint32_t y, float t) {
-  uint8_t r = red(x) + (red(y) - red(x)) * t;
-  uint8_t g = green(x) + (green(y) - green(x)) * t;
-  uint8_t b = blue(x) + (blue(y) - blue(x)) * t;
-  uint8_t w = white(x) + (white(y) - white(x)) * t;
+  uint8_t r = redFrom(x) + (redFrom(y) - redFrom(x)) * t;
+  uint8_t g = greenFrom(x) + (greenFrom(y) - greenFrom(x)) * t;
+  uint8_t b = blueFrom(x) + (blueFrom(y) - blueFrom(x)) * t;
+  uint8_t w = whiteFrom(x) + (whiteFrom(y) - whiteFrom(x)) * t;
   return strip.Color(r, g, b, w);
 }
 
-uint8_t red(uint32_t colour) {
+uint8_t redFrom(uint32_t colour) {
   return (colour >> 16) & 0xFF;
 }
 
-uint8_t green(uint32_t colour) {
+uint8_t greenFrom(uint32_t colour) {
   return (colour >> 8) & 0xFF;
 }
 
-uint8_t blue(uint32_t colour) {
+uint8_t blueFrom(uint32_t colour) {
   return colour & 0xFF;
 }
 
-uint8_t white(uint32_t colour) {
+uint8_t whiteFrom(uint32_t colour) {
   return colour & 0xFF;
 }
+
+uint32_t transPink = strip.ColorHSV(305 * 65536L / 360);
+uint32_t transBlue = strip.ColorHSV(65536L / 2);
+uint32_t white = strip.Color(0, 0, 0, 255);
 
 void transFlag(int time) {
+  strip.clear();
+  stepAroundEdge();
+  strip.show();
+}
+
+void stepChunks() {
   for (int i=0; i<strip.numPixels() / 3; i++) {
-    strip.setPixelColor(i, strip.ColorHSV(65536L / 2));
+    strip.setPixelColor(i, transBlue);
   }
   for (int i=strip.numPixels() / 3; i<strip.numPixels() * 2 / 3; i++) {
-    strip.setPixelColor(i, strip.Color(0, 0, 0, 255));
+    strip.setPixelColor(i, white);
   }
   for (int i=strip.numPixels() * 2 / 3; i<strip.numPixels(); i++) {
-    strip.setPixelColor(i, strip.ColorHSV(305 * 65536L / 360));
+    strip.setPixelColor(i, transPink);
   }
-  strip.show();
+}
+
+void stepAroundEdge() {
+  for (int i=1; i<=12; i++) {
+    switch (i % 3) {
+      case 0:
+        paintNumber(i, transBlue);
+        break;
+      case 1:
+        paintNumber(i, white);
+        break;
+      default:
+        paintNumber(i, transPink);
+    }
+  }
+}
+
+void paintNumber(int number, uint32_t colour) {
+  int start = handStartFor(number);
+  int end = handEndFor(number);
+  for (int i=start; i<end; i++) {
+    strip.setPixelColor(i, colour);
+  }
 }
 
 void wipeNumbers() {
