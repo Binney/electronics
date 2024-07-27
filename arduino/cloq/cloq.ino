@@ -208,17 +208,16 @@ uint8_t whiteFrom(uint32_t colour) {
 
 void transFlag(int time) {
   strip.clear();
-  radiatePalette(time, trans_flag, 3);
-  // switch ((time / 10000) % 3) {
-  //   case 0:
-  //     stepChunks(time, trans_flag, 3);
-  //     break;
-  //   case 1:
-  //     stepAroundEdge(time, trans_flag, 3);
-  //     break;
-  //   default:
-  //     radiatePalette(time, trans_flag, 3);
-  // }
+  switch ((time / 10000) % 3) {
+    case 0:
+      stepChunks(time, trans_flag, 3);
+      break;
+    case 1:
+      stepAroundEdge(time, trans_flag, 3);
+      break;
+    default:
+      radiatePalette(time, trans_flag, 3);
+  }
   strip.show();
 }
 
@@ -226,13 +225,10 @@ void stepChunks(int time, uint32_t* palette, int palette_size) {
   for (int i=0; i<12; i++) {
     paintNumber((i + time / 2000) % 12, palette[palette_size * i / 12]);
   }
-  // for (int i=0; i<strip.numPixels(); i++) {
-  //   strip.setPixelColor(i, palette[palette_size * i / strip.numPixels()]);
-  // }
 }
 
 void stepAroundEdge(int time, uint32_t* palette, int palette_size) {
-  // I 300% don't understand c++
+  // I 300% don't understand c++ why can't I just get the number of objects in the damn array
   for (int i=1; i<=12; i++) {
     paintNumber(i, palette[(i + time / 2000) % palette_size]);
   }
@@ -243,18 +239,12 @@ void radiatePalette(int time, uint32_t* palette, int palette_size) {
   int radiateLength = 8;
   // 3 at a time
   for (int number=0; number<12; number++) {
-    if (number % 2 == 0) {
-      // Count inwards
       int start = handStartFor(number);
       int end = handEndFor(number);
       for (int i=0; i<end - start; i++) {
+      if (number % 2 == 0) {
         strip.setPixelColor(start + i, palette[((i + step) / radiateLength) % palette_size]);
-      }
-    } else {
-      // Count outwards
-      int start = handStartFor(number);
-      int end = handEndFor(number);
-      for (int i=0; i<end - start; i++) {
+      } else {
         strip.setPixelColor(end - i, palette[((i + step) / radiateLength) % palette_size]);
       }
     }
