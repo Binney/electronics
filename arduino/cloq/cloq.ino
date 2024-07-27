@@ -72,7 +72,7 @@ void setup() {
 
 void onButtonPressed(uint8_t pin) {
   Serial.println("Pressed button!");
-  mode = (mode + 1) % 4;
+  mode = (mode + 1) % 5;
 }
 
 uint32_t* palette = new uint32_t[6]{
@@ -105,6 +105,8 @@ void loop() {
   } else if (mode == 1) {
     bumpWhiteOverRainbow(now);
   } else if (mode == 2) {
+    transFlag(now);
+  } else if (mode == 3) {
     landslide(now);
   } else {
     bumpPalette(now);
@@ -192,6 +194,19 @@ uint8_t blue(uint32_t colour) {
 
 uint8_t white(uint32_t colour) {
   return colour & 0xFF;
+}
+
+void transFlag(int time) {
+  for (int i=0; i<strip.numPixels() / 3; i++) {
+    strip.setPixelColor(i, strip.ColorHSV(65536L / 2));
+  }
+  for (int i=strip.numPixels() / 3; i<strip.numPixels() * 2 / 3; i++) {
+    strip.setPixelColor(i, strip.Color(0, 0, 0, 255));
+  }
+  for (int i=strip.numPixels() * 2 / 3; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, strip.ColorHSV(305 * 65536L / 360));
+  }
+  strip.show();
 }
 
 void wipeNumbers() {
