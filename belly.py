@@ -15,7 +15,7 @@ print("letsgooo")
 
 pixels = NeoPixel(board.NEOPIXEL, 2, brightness=0.1, auto_write=False)
 
-num_pixels = 118 # I don't even know
+num_pixels = 59 # 118 # Actually 118 pixels in the strip, but doubled up
 dots = DotStar(board.SCK, board.MOSI, num_pixels, brightness=0.2, auto_write=False)
 
 RED = (255, 0, 0)
@@ -51,12 +51,11 @@ def sweeping_clear(wait):
         dots.show()
         time.sleep(wait)
 
-hue_offset = 0
-def fill_to(pix):
-    for i in range(pix, num_pixels):
-        rc_index = (i * 256 // num_pixels) + hue_offset
-        dots[i] = colorwheel(rc_index & 255)
-    hue_offset += 1
+def loading_bar(wait):
+    for i in range(num_pixels):
+        dots[num_pixels - 1] = WHITE
+        dots.show()
+        time.sleep(wait)
 
 rainbow_cycle(0)  # Increase the number to slow down the rainbow
 
@@ -66,6 +65,18 @@ def fill_rainbow_to(pix):
         dots[i] = colorwheel(rc_index & 255)
     dots.show()
 
+hue_offset = 0
+white_chaser_size = 5
+def bump_white_over_rainbow(calmness):
+    global hue_offset
+    for i in range(num_pixels):
+        rc_index = (i * 256 // num_pixels) + hue_offset
+        dots[i] = colorwheel(rc_index & 255)
+    for i in range(white_chaser_size):
+        dots[(hue_offset // calmness + i) % num_pixels] = WHITE
+    dots.show()
+    hue_offset += 1
+
 def lerp(a, b, x):
     return a + (b - a) * x;
 
@@ -73,6 +84,15 @@ def colour_interp(col1, col2, x):
     (r1, g1, b1) = col1
     (r2, g2, b2) = col2
     return (lerp(r1, r2, x), lerp(g1, g2, x), lerp(b1, b2, x))
+
+def bump_fade_colours(palette, chill):
+    global hue_offset
+    p = len(palette)
+    for i in range(num_pixels // p):
+        for k in range(p):
+            dots[(i + (hue_offset // chill) + (k * num_pixels // p)) % num_pixels] = colour_interp(palette[k], palette[(k + 1) % p], i * p / num_pixels)
+        dots.show()
+    hue_offset += 1
 
 def fade_colours(palette):
     p = len(palette)
@@ -120,14 +140,31 @@ mp3_file = open("RGSS.mp3", "rb")
 decoder = MP3Decoder(mp3_file)
 audio = I2SOut(board.D1, board.D10, board.D11)
 
-def play_take_on_me():
-    show_colour(YELLOW)
-    print("playinggg")
+def play_song():
+    print("Playing song...")
     decoder.file = open("RGSS.mp3", "rb")
     audio.play(decoder)
+    time_start = time.monotonic()
     while audio.playing:
+        current_time = time.monotonic()
+        if current_time - time_start < 17:
+            # low synth
+            bump_fade_colours([ORANGE, PURPLE, RED], 5)
+        elif current_time - time_start < 33:
+            bump_fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)], 3)
+        elif current_time - time_start < 50:
+            bump_fade_colours([PINK, CYAN, WHITE], 3)
+        elif current_time - time_start < 63:
+            bump_fade_colours([ORANGE, PURPLE, BLUE], 2)            
+        elif current_time - time_start < 75:
+            show_colour(WHITE)
+        elif current_time - time_start < 82:
+            bump_white_over_rainbow(10)
+        elif current_time - time_start < 109:
+            bump_white_over_rainbow(5)
+        else:
+            show_colour(BLUE)
         pass
-    show_colour(BLUE)
     sweeping_clear(0.1)
     print("done")
 
@@ -152,6 +189,8 @@ sequence_to_enter = correct_answer
 last_keypress_heard = 0
 last_button_pressed = -1
 
+play_song()
+
 while True:
     if sequence_to_enter != correct_answer:
         # You got at least some of them right
@@ -175,11 +214,10 @@ while True:
                 reset()
             if sequence_to_enter == "":
                 print("Unlocked the Secret Mode!")
-                # Celebrate:
-                rainbow_cycle(0)
-                play_take_on_me()
                 # Restart game:
                 sequence_to_enter = correct_answer
+                # Celebrate:
+                play_song()
             last_keypress_heard = time.monotonic()
         if event.released:
             last_button_pressed = -1
