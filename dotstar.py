@@ -8,16 +8,38 @@ import board
 import digitalio
 from audiocore import WaveFile
 
+import busio
+import sdcardio
+import storage
+
 from rainbowio import colorwheel
 import neopixel
 
 print("letsgooo")
 
-pixels = neopixel.NeoPixel(board.NEOPIXEL, 2, brightness=0.1, auto_write=False)
+# Use the board's primary SPI bus
+spi = board.SPI()
+# Or, use an SPI bus on specific pins:
+#spi = busio.SPI(board.SD_SCK, MOSI=board.SD_MOSI, MISO=board.SD_MISO)
 
-import adafruit_dotstar as dotstar
-num_pixels = 118 # I don't even know
-dots = dotstar.DotStar(board.SCK, board.MOSI, num_pixels, brightness=0.2, auto_write=False)
+# For breakout boards, you can choose any GPIO pin that's convenient:
+cs = board.D10
+# Boards with built in SPI SD card slots will generally have a
+# pin called SD_CS:
+#cs = board.SD_CS
+
+sdcard = sdcardio.SDCard(spi, cs)
+vfs = storage.VfsFat(sdcard)
+storage.mount(vfs, "/sd")
+
+with open("/sd/test.txt", "w") as f:
+    f.write("Hello world!\r\n")
+
+#pixels = neopixel.NeoPixel(board.NEOPIXEL, 2, brightness=0.1, auto_write=False)
+
+#import adafruit_dotstar as dotstar
+#num_pixels = 118 # I don't even know
+#dots = dotstar.DotStar(board.SCK, board.MOSI, num_pixels, brightness=0.2, auto_write=False)
 
 RED = (255, 0, 0)
 ORANGE = (255, 50, 0)
@@ -43,7 +65,7 @@ def show_colour(color):
     dots.fill(color)
     dots.show()
 
-rainbow_cycle(0)  # Increase the number to slow down the rainbow
+#rainbow_cycle(0)  # Increase the number to slow down the rainbow
 
 try:
     from audioio import AudioOut
@@ -56,37 +78,34 @@ except ImportError:
         print("Couldn't audio")
         pass  # not always supported by every board!
 
-button = digitalio.DigitalInOut(board.A1)
-button.switch_to_input(pull=digitalio.Pull.UP)
+#button = digitalio.DigitalInOut(board.A1)
+#button.switch_to_input(pull=digitalio.Pull.UP)
 
-show_colour(BLUE)
+#show_colour(BLUE)
 
 from audiomp3 import MP3Decoder
+from audiobusio import I2SOut
 
 print("looking for chicken")
-mp3_file = open("take_on_me_short.mp3", "rb")
-file_to_play = MP3Decoder(mp3_file)
-audio = AudioOut(board.A0)
+#mp3_file = open("take_on_me_short.mp3", "rb")
+#decoder = MP3Decoder(mp3_file)
+audio = AudioOut(board.A1)
+audio = I2SOut(board.D1, board.D11, board.D12)
 
-
-while True:
-    print("let's go")
-    show_colour(CYAN)
-    audio.play(file_to_play)
-    print("i play it")
-
-    show_colour(YELLOW)
-    # This allows you to do other things while the audio plays!
-    t = time.monotonic()
-    while time.monotonic() - t < 6:
-        pass
-
-    show_colour(ORANGE)
-    #   audio.pause()
-    print("Waiting for button press to continue!")
-    while button.value:
-        pass
-    audio.resume()
+def play_take_on_me():
+    #show_colour(YELLOW)
+    print("playinggg")
+    file_to_play = open("sd/phanta.wav", "rb")
+    wav_file = WaveFile(file_to_play)
+    audio.play(wave_file)
+    #decoder.file = open("take_on_me_short.mp3", "rb")
+    #audio.play(decoder)
     while audio.playing:
         pass
-    print("Done!")
+    #show_colour(BLUE)
+    print("done")
+
+while True:
+    time.sleep(5)
+    play_take_on_me()
+    pass
