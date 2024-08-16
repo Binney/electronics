@@ -24,7 +24,7 @@ YELLOW = (255, 150, 0)
 GREEN = (0, 255, 0)
 CYAN = (0, 255, 255)
 BLUE = (0, 0, 255)
-PURPLE = (180, 0, 255)
+PURPLE = (255, 0, 255)
 PINK = (255, 75, 150)
 WHITE = (255, 255, 255)
 NOTHING = (0, 0, 0)
@@ -60,6 +60,12 @@ def fill_to(pix):
 
 rainbow_cycle(0)  # Increase the number to slow down the rainbow
 
+def fill_rainbow_to(pix):
+    for i in range(num_pixels - pix, num_pixels):
+        rc_index = (i * 256 // num_pixels) + hue_offset
+        dots[i] = colorwheel(rc_index & 255)
+    dots.show()
+
 def lerp(a, b, x):
     return a + (b - a) * x;
 
@@ -71,29 +77,42 @@ def colour_interp(col1, col2, x):
 def fade_colours(palette):
     p = len(palette)
     for j in range(0, num_pixels):
-        for i in range(0, num_pixels // p):
+        for i in range(num_pixels // p):
             for k in range(p):
                 dots[(i + j + (k * num_pixels // p)) % num_pixels] = colour_interp(palette[k], palette[(k + 1) % p], i * p / num_pixels)
             dots.show()
 
-def fluoresce():
-    fade_colours([GREEN, BLUE])
+def chaser(palette, chaser_size, wait):
+    p = len(palette)
+    for j in range(num_pixels):
+        for i in range(num_pixels):
+            dots[(i + j) % num_pixels] = palette[(i // chaser_size) % p]
+        dots.show()
+        time.sleep(wait)
+
+def reset():
+    show_colour(NOTHING)
+
+def meadow():
+    fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)])
+    reset()
 
 def trans_pride():
-    show_colour(PINK)
-    print("yes!", num_pixels)
-    fade_colours([PINK, CYAN, WHITE])
-    time.sleep(10)
+    chaser([PINK, CYAN, WHITE], 5, 0.05)
+    reset()
 
-def sparkle():
-    show_colour(PURPLE)
+def sunset():
+    fade_colours([ORANGE, PURPLE, BLUE])
+    reset()
 
 def glitter():
+    chaser([WHITE, NOTHING, NOTHING, PURPLE, NOTHING, NOTHING, WHITE, NOTHING, ORANGE, NOTHING], 3, 0.1)
     show_colour(WHITE)
-    
+    reset()
+
 def glow():
     fade_colours([RED, ORANGE, YELLOW])
-glow()
+    reset()
 
 keys = keypad.Keys((board.A0, board.A1, board.A2,board.A3,board.A4, board.A5), value_when_pressed=False, pull=True)
 
@@ -125,22 +144,19 @@ def shuffle_answer():
     print("The answer is:", result)
     return result
 
-show_colour(NOTHING)
+reset()
 
-correct_answer = "0123456"
+correct_answer = "012345"
 sequence_to_enter = correct_answer
 
 last_keypress_heard = 0
+last_button_pressed = -1
 
 while True:
     if sequence_to_enter != correct_answer:
         # You got at least some of them right
         pix = ((len(correct_answer) - len(sequence_to_enter)) * num_pixels) // len(correct_answer)
-        print("fill_to", len(correct_answer), len(sequence_to_enter), pix)
-        for i in range(num_pixels - pix, num_pixels):
-            rc_index = (i * 256 // num_pixels) + hue_offset
-            dots[i] = colorwheel(rc_index & 255)
-        dots.show()
+        fill_rainbow_to(pix)
         hue_offset += 1
 
     event = keys.events.get()
@@ -149,12 +165,14 @@ while True:
         print(event)
         print(event.timestamp)
         if event.pressed:
+            last_button_pressed = event.key_number
             if sequence_to_enter[0] == str(event.key_number):
                 print("Correct!")
                 sequence_to_enter = sequence_to_enter[1:]
-            else:                
+            else:
                 print("Wrong")
-                show_colour(NOTHING)
+                sequence_to_enter = correct_answer
+                reset()
             if sequence_to_enter == "":
                 print("Unlocked the Secret Mode!")
                 # Celebrate:
@@ -163,17 +181,24 @@ while True:
                 # Restart game:
                 sequence_to_enter = correct_answer
             last_keypress_heard = time.monotonic()
-        print(event.released, time.monotonic() - last_keypress_heard)
-        if event.released and time.monotonic() - last_keypress_heard > 10:
-            # 0 starts the sequence, ignore that
-            if event.key_number == 1:
-                fluoresce()
-            if event.key_number == 2:
-                trans_pride()
-            if event.key_number == 3:
-                sparkle()
-            if event.key_number == 4:
-                glitter()
-            if event.key_number == 5:
-                glow()
+        if event.released:
+            last_button_pressed = -1
+
+    if last_button_pressed > 0 and time.monotonic() - last_keypress_heard > 10:
+        # 0 starts the sequence, ignore that
+        if last_button_pressed == 1:
+            meadow()
+            last_button_pressed = -1
+        if last_button_pressed == 2:
+            trans_pride()
+            last_button_pressed = -1
+        if last_button_pressed == 3:
+            sunset()
+            last_button_pressed = -1
+        if last_button_pressed == 4:
+            glitter()
+            last_button_pressed = -1
+        if last_button_pressed == 5:
+            glow()
+            last_button_pressed = -1
     time.sleep(0.01)
