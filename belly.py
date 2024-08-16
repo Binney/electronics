@@ -25,6 +25,8 @@ GREEN = (0, 255, 0)
 CYAN = (0, 255, 255)
 BLUE = (0, 0, 255)
 PURPLE = (180, 0, 255)
+PINK = (255, 75, 150)
+WHITE = (255, 255, 255)
 NOTHING = (0, 0, 0)
 
 def rainbow_cycle(wait):
@@ -58,12 +60,40 @@ def fill_to(pix):
 
 rainbow_cycle(0)  # Increase the number to slow down the rainbow
 
-def create_button(pin):
-    result = digitalio.DigitalInOut(pin)
-    result.direction = digitalio.Direction.INPUT
-    result.pull = digitalio.Pull.UP
-    sw = Debouncer(result)
-    return sw
+def lerp(a, b, x):
+    return a + (b - a) * x;
+
+def colour_interp(col1, col2, x):
+    (r1, g1, b1) = col1
+    (r2, g2, b2) = col2
+    return (lerp(r1, r2, x), lerp(g1, g2, x), lerp(b1, b2, x))
+
+def fade_colours(palette):
+    p = len(palette)
+    for j in range(0, num_pixels):
+        for i in range(0, num_pixels // p):
+            for k in range(p):
+                dots[(i + j + (k * num_pixels // p)) % num_pixels] = colour_interp(palette[k], palette[(k + 1) % p], i * p / num_pixels)
+            dots.show()
+
+def fluoresce():
+    fade_colours([GREEN, BLUE])
+
+def trans_pride():
+    show_colour(PINK)
+    print("yes!", num_pixels)
+    fade_colours([PINK, CYAN, WHITE])
+    time.sleep(10)
+
+def sparkle():
+    show_colour(PURPLE)
+
+def glitter():
+    show_colour(WHITE)
+    
+def glow():
+    fade_colours([RED, ORANGE, YELLOW])
+glow()
 
 keys = keypad.Keys((board.A0, board.A1, board.A2,board.A3,board.A4, board.A5), value_when_pressed=False, pull=True)
 
@@ -97,7 +127,7 @@ def shuffle_answer():
 
 show_colour(NOTHING)
 
-correct_answer = shuffle_answer()
+correct_answer = "0123456"
 sequence_to_enter = correct_answer
 
 last_keypress_heard = 0
@@ -119,34 +149,31 @@ while True:
         print(event)
         print(event.timestamp)
         if event.pressed:
-            last_keypress_heard = event.timestamp
             if sequence_to_enter[0] == str(event.key_number):
                 print("Correct!")
                 sequence_to_enter = sequence_to_enter[1:]
-                
-            else:
+            else:                
                 print("Wrong")
-                if sequence_to_enter == correct_answer:
-                    # You didn't get far into it. Just skip
-                    continue
-                sequence_to_enter = correct_answer
-                show_colour(RED)
-                time.sleep(0.5)
-                show_colour(NOTHING)
-                time.sleep(0.5)
-                show_colour(RED)
-                time.sleep(0.5)
-                show_colour(NOTHING)
-                time.sleep(0.5)
-                show_colour(RED)
-                time.sleep(0.5)
                 show_colour(NOTHING)
             if sequence_to_enter == "":
                 print("Unlocked the Secret Mode!")
                 # Celebrate:
                 rainbow_cycle(0)
                 play_take_on_me()
-                # Make a new answer:
-                correct_answer = shuffle_answer()
+                # Restart game:
                 sequence_to_enter = correct_answer
+            last_keypress_heard = time.monotonic()
+        print(event.released, time.monotonic() - last_keypress_heard)
+        if event.released and time.monotonic() - last_keypress_heard > 10:
+            # 0 starts the sequence, ignore that
+            if event.key_number == 1:
+                fluoresce()
+            if event.key_number == 2:
+                trans_pride()
+            if event.key_number == 3:
+                sparkle()
+            if event.key_number == 4:
+                glitter()
+            if event.key_number == 5:
+                glow()
     time.sleep(0.01)
