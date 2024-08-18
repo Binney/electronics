@@ -110,6 +110,32 @@ def chaser(palette, chaser_size, wait):
         dots.show()
         time.sleep(wait)
 
+def pong(colour, wait):
+    for i in range(num_pixels):
+        dots.fill(NOTHING)
+        dots[i] = colour
+        dots.show()
+        time.sleep(wait)
+
+def palette_interp(palette, x):
+    p = len(palette) - 1
+    col = int(p * x)
+    return colour_interp(palette[col], palette[col + 1], (x - col / p) * p)
+
+def sunrise():
+    palette = [YELLOW, ORANGE, RED, BLUE]
+    for i in range(num_pixels):
+        dots[i] = palette_interp(palette, i / num_pixels)
+    dots.show()
+
+def bump_sunrise(wait):
+    palette = [YELLOW, ORANGE, RED, BLUE]
+    for i in range(num_pixels):
+        dots.fill(NOTHING)
+        dots[i] = palette_interp(palette, i / num_pixels)
+        dots.show()
+        time.sleep(wait)
+
 def reset():
     show_colour(NOTHING)
 
@@ -147,6 +173,7 @@ def play_song():
     time_start = time.monotonic()
     while audio.playing:
         current_time = time.monotonic()
+        
         if current_time - time_start < 17:
             # low synth
             bump_fade_colours([ORANGE, PURPLE, RED], 5)
@@ -155,7 +182,7 @@ def play_song():
         elif current_time - time_start < 50:
             bump_fade_colours([PINK, CYAN, WHITE], 3)
         elif current_time - time_start < 63:
-            bump_fade_colours([ORANGE, PURPLE, BLUE], 2)            
+            bump_fade_colours([ORANGE, PURPLE, BLUE], 2)
         elif current_time - time_start < 75:
             show_colour(WHITE)
         elif current_time - time_start < 82:
@@ -189,7 +216,7 @@ sequence_to_enter = correct_answer
 last_keypress_heard = 0
 last_button_pressed = -1
 
-play_song()
+#play_song()
 
 while True:
     if sequence_to_enter != correct_answer:
