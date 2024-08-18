@@ -266,6 +266,9 @@ def play_song():
             bump_third_sunrise(0.05)
         elif current_time - time_start < 20.721:
             # rgss
+            bump_sparkles(0.2)
+        elif current_time - time_start < 28.574:
+            # rgss
             bump_sparkles(0.1)
         elif current_time - time_start < 33.322:
             # RGSS
@@ -284,7 +287,7 @@ def play_song():
             # choir
             show_colour(WHITE)
         elif current_time - time_start < 75.073:
-            # cymbals 
+            # cymbals
             show_colour(NOTHING)
         elif current_time - time_start < 83.237:
             # amazing rainbows
