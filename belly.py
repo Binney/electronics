@@ -68,6 +68,15 @@ def fill_rainbow_to(pix):
 hue_offset = 0
 white_chaser_size = 5
 frame = 0
+fired_sunrise = 0
+
+def bump_rainbow(calmness):
+    global hue_offset
+    for i in range(num_pixels):
+        rc_index = (i * 256 // num_pixels) + hue_offset
+        dots[i] = colorwheel(rc_index & 255)
+    dots.show()
+    hue_offset += 1
 
 def bump_white_over_rainbow(calmness):
     global hue_offset
@@ -133,25 +142,48 @@ def sunrise():
         dots[i] = palette_interp(palette, i / num_pixels)
     dots.show()
 
-def bump_chaser(palette, wait, tail):
-    global frame
-    frame = (frame + 1) % num_pixels
-    colour = palette_interp(palette, frame / num_pixels)
-    dots[frame] = colour
+def bump_chaser(palette, wait, frame, tail):
+    colour = palette_interp(palette, (frame % num_pixels) / num_pixels)
+    if frame < num_pixels:
+        dots[frame] = colour
     for i in range(1, tail):
-        if frame - i >= 0:
-            dots[frame - i] = scale_tuple(dots[frame - 1], 0.5)
+        if frame - i >= 0 and frame - i < num_pixels:
+            dots[frame - i] = scale_tuple(dots[frame - i], 2 / tail)
     # clean cutoff for tail:
     dots[(frame - tail + num_pixels) % num_pixels] = NOTHING
     dots.show()
     time.sleep(wait)
 
-def bump_sunrise(wait):
-    palette = [YELLOW, ORANGE, RED, BLUE, BLUE, BLUE]
-    bump_chaser(palette, wait, 5)
+def bump_repeat_chaser(palette, wait, tail):
+    global frame
+    frame = (frame + 1) % num_pixels
+    bump_chaser(palette, wait, frame, tail)
 
-while True:
-    bump_sunrise(0.05)
+def bump_onetime_chaser(palette, wait, tail):
+    global frame
+    frame += 1
+    bump_chaser(palette, wait, frame, tail)
+
+sunrise_palette = [YELLOW, ORANGE, RED, BLUE, BLUE, BLUE]
+
+def bump_sunrise(wait):
+    bump_onetime_chaser(sunrise_palette, wait, 5)
+
+def bump_second_sunrise(wait):
+    global frame
+    global fired_sunrise
+    if fired_sunrise < 1:
+        frame = -1
+        fired_sunrise = 1
+    bump_onetime_chaser(sunrise_palette, wait, 5)
+
+def bump_third_sunrise(wait):
+    global frame
+    global fired_sunrise
+    if fired_sunrise < 2:
+        frame = -1
+        fired_sunrise = 2
+    bump_onetime_chaser(sunrise_palette, wait, 10)
 
 def reset():
     show_colour(NOTHING)
@@ -193,26 +225,49 @@ def play_song():
         if current_time - time_start < 8.475:
             # first synth stab
             bump_sunrise(0.1)
-        if current_time - time_start < 17:
-            # low synth
-            bump_fade_colours([ORANGE, PURPLE, RED], 5)
-        elif current_time - time_start < 33:
+        elif current_time - time_start < 12.379:
+            # second synth stab
+            bump_second_sunrise(0.05)
+        elif current_time - time_start < 16.683:
+            # third synth stab
+            bump_third_sunrise(0.05)
+        elif current_time - time_start < 20.721:
+            pass
+        elif current_time - time_start < 25.024:
+            pass
+        elif current_time - time_start < 29.195:
+            pass
+        elif current_time - time_start < 33.322:
             bump_fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)], 3)
-        elif current_time - time_start < 50:
+        elif current_time - time_start < 50.005:
             bump_fade_colours([PINK, CYAN, WHITE], 3)
-        elif current_time - time_start < 63:
+        elif current_time - time_start < 58.302:
+            pass
+        elif current_time - time_start < 65.268:
             bump_fade_colours([ORANGE, PURPLE, BLUE], 2)
-        elif current_time - time_start < 75:
+        elif current_time - time_start < 66.821:
+            # big solo
+            pass
+        elif current_time - time_start < 73.254:
+            # choir
+            pass
+        elif current_time - time_start < 75.073:
+            # cymbals
             show_colour(WHITE)
         elif current_time - time_start < 82:
-            bump_white_over_rainbow(10)
-        elif current_time - time_start < 109:
+            # amazing rainbows
+            bump_rainbow(50)
+        elif current_time - time_start < 91.845:
+            # hyper ultra
+            bump_rainbow(10)
+        elif current_time - time_start < 108.661:
+            # synth solo
             bump_white_over_rainbow(5)
         else:
             show_colour(BLUE)
         pass
     sweeping_clear(0.1)
-    print("done")
+    print("blimey")
 
 def shuffle_answer():
     numbers = ""
@@ -235,10 +290,7 @@ sequence_to_enter = correct_answer
 last_keypress_heard = 0
 last_button_pressed = -1
 
-while True:
-    bump_sunrise(0.05)
-
-#play_song()
+play_song()
 
 while True:
     if sequence_to_enter != correct_answer:
