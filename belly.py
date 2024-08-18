@@ -73,7 +73,7 @@ fired_sunrise = 0
 def bump_rainbow(calmness):
     global hue_offset
     for i in range(num_pixels):
-        rc_index = (i * 256 // num_pixels) + hue_offset
+        rc_index = (i * 256 // num_pixels) + hue_offset // calmness
         dots[i] = colorwheel(rc_index & 255)
     dots.show()
     hue_offset += 1
@@ -81,10 +81,10 @@ def bump_rainbow(calmness):
 def bump_white_over_rainbow(calmness):
     global hue_offset
     for i in range(num_pixels):
-        rc_index = (i * 256 // num_pixels) + hue_offset
+        rc_index = (i * 256 // num_pixels) + (hue_offset // calmness)
         dots[i] = colorwheel(rc_index & 255)
     for i in range(white_chaser_size):
-        dots[(hue_offset // calmness + i) % num_pixels] = WHITE
+        dots[(hue_offset // (calmness * 5) + i) % num_pixels] = WHITE
     dots.show()
     hue_offset += 1
 
@@ -136,6 +136,11 @@ def palette_interp(palette, x):
     col = int(p * x)
     return colour_interp(palette[col], palette[col + 1], (x - col / p) * p)
 
+# helper for avoiding index out of range
+def set_colour(i, colour):
+    if i >= 0 and i < num_pixels:
+        dots[i] = colour
+
 def sunrise():
     palette = [YELLOW, ORANGE, RED, BLUE]
     for i in range(num_pixels):
@@ -185,28 +190,56 @@ def bump_third_sunrise(wait):
         fired_sunrise = 2
     bump_onetime_chaser(sunrise_palette, wait, 10)
 
+sparkle_lifetime = 5
+sparkles = [(20, 1)]
+def draw_sparkles(wait):
+    dots.fill(NOTHING)
+    global sparkles
+    result = []
+    for (location, size) in sparkles:
+        brightness = scale_tuple(WHITE, 1 / (size * size))
+        for i in range(location - size, location + size + 1):
+            set_colour(i, brightness)
+        if size < sparkle_lifetime:
+            result.append((location, size + 1))
+    sparkles = result
+    dots.show()
+    time.sleep(wait)
+
+def bump_sparkles(wait):
+    if random.random() < 0.3:
+        location = random.randrange(num_pixels)
+        sparkles.append((location, 1))
+    draw_sparkles(wait)
+
 def reset():
     show_colour(NOTHING)
 
+demo_duration = 5
+
 def meadow():
-    fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)])
+    for i in range(demo_duration):
+        fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)])
     reset()
 
 def trans_pride():
-    chaser([PINK, CYAN, WHITE], 5, 0.05)
+    for i in range(demo_duration):
+        chaser([PINK, CYAN, WHITE], 5, 0.05)
     reset()
 
 def sunset():
-    fade_colours([ORANGE, PURPLE, BLUE])
+    for i in range(demo_duration):
+        fade_colours([ORANGE, PURPLE, BLUE])
     reset()
 
 def glitter():
-    chaser([WHITE, NOTHING, NOTHING, PURPLE, NOTHING, NOTHING, WHITE, NOTHING, ORANGE, NOTHING], 3, 0.1)
-    show_colour(WHITE)
+    for i in range(3):
+        chaser([WHITE, NOTHING, NOTHING, PURPLE, NOTHING, NOTHING, WHITE, NOTHING, ORANGE, NOTHING], 3, 0.1)
     reset()
 
 def glow():
-    fade_colours([RED, ORANGE, YELLOW])
+    for i in range(demo_duration):
+        fade_colours([RED, ORANGE, YELLOW])
     reset()
 
 keys = keypad.Keys((board.A0, board.A1, board.A2,board.A3,board.A4, board.A5), value_when_pressed=False, pull=True)
@@ -232,37 +265,39 @@ def play_song():
             # third synth stab
             bump_third_sunrise(0.05)
         elif current_time - time_start < 20.721:
-            pass
-        elif current_time - time_start < 25.024:
-            pass
-        elif current_time - time_start < 29.195:
-            pass
+            # rgss
+            bump_sparkles(0.1)
         elif current_time - time_start < 33.322:
-            bump_fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)], 3)
+            # RGSS
+            bump_sparkles(0.05)
         elif current_time - time_start < 50.005:
-            bump_fade_colours([PINK, CYAN, WHITE], 3)
+            # second singer
+            bump_fade_colours([ORANGE, PURPLE, BLUE], 3)
         elif current_time - time_start < 58.302:
-            pass
+            bump_fade_colours([YELLOW, GREEN, CYAN, (0, 255, 50)], 2)
         elif current_time - time_start < 65.268:
-            bump_fade_colours([ORANGE, PURPLE, BLUE], 2)
+            bump_fade_colours([PINK, CYAN], 3)
         elif current_time - time_start < 66.821:
             # big solo
-            pass
-        elif current_time - time_start < 73.254:
+            bump_fade_colours([PINK, CYAN, WHITE], 5)
+        elif current_time - time_start < 72.766:
             # choir
-            pass
-        elif current_time - time_start < 75.073:
-            # cymbals
             show_colour(WHITE)
-        elif current_time - time_start < 82:
+        elif current_time - time_start < 75.073:
+            # cymbals 
+            show_colour(NOTHING)
+        elif current_time - time_start < 83.237:
             # amazing rainbows
-            bump_rainbow(50)
+            bump_rainbow(5)
         elif current_time - time_start < 91.845:
+            # amazing rainbows even faster
+            bump_rainbow(2)
+        elif current_time - time_start < 100.142:
             # hyper ultra
-            bump_rainbow(10)
+            bump_white_over_rainbow(2)
         elif current_time - time_start < 108.661:
             # synth solo
-            bump_white_over_rainbow(5)
+            bump_white_over_rainbow(1)
         else:
             show_colour(BLUE)
         pass
@@ -289,8 +324,6 @@ sequence_to_enter = correct_answer
 
 last_keypress_heard = 0
 last_button_pressed = -1
-
-play_song()
 
 while True:
     if sequence_to_enter != correct_answer:
