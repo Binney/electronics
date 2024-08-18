@@ -67,6 +67,8 @@ def fill_rainbow_to(pix):
 
 hue_offset = 0
 white_chaser_size = 5
+frame = 0
+
 def bump_white_over_rainbow(calmness):
     global hue_offset
     for i in range(num_pixels):
@@ -117,6 +119,9 @@ def pong(colour, wait):
         dots.show()
         time.sleep(wait)
 
+def scale_tuple(t, x):
+    return tuple(x * tt for tt in t)
+
 def palette_interp(palette, x):
     p = len(palette) - 1
     col = int(p * x)
@@ -128,13 +133,25 @@ def sunrise():
         dots[i] = palette_interp(palette, i / num_pixels)
     dots.show()
 
+def bump_chaser(palette, wait, tail):
+    global frame
+    frame = (frame + 1) % num_pixels
+    colour = palette_interp(palette, frame / num_pixels)
+    dots[frame] = colour
+    for i in range(1, tail):
+        if frame - i >= 0:
+            dots[frame - i] = scale_tuple(dots[frame - 1], 0.5)
+    # clean cutoff for tail:
+    dots[(frame - tail + num_pixels) % num_pixels] = NOTHING
+    dots.show()
+    time.sleep(wait)
+
 def bump_sunrise(wait):
-    palette = [YELLOW, ORANGE, RED, BLUE]
-    for i in range(num_pixels):
-        dots.fill(NOTHING)
-        dots[i] = palette_interp(palette, i / num_pixels)
-        dots.show()
-        time.sleep(wait)
+    palette = [YELLOW, ORANGE, RED, BLUE, BLUE, BLUE]
+    bump_chaser(palette, wait, 5)
+
+while True:
+    bump_sunrise(0.05)
 
 def reset():
     show_colour(NOTHING)
@@ -173,7 +190,9 @@ def play_song():
     time_start = time.monotonic()
     while audio.playing:
         current_time = time.monotonic()
-        
+        if current_time - time_start < 8.475:
+            # first synth stab
+            bump_sunrise(0.1)
         if current_time - time_start < 17:
             # low synth
             bump_fade_colours([ORANGE, PURPLE, RED], 5)
@@ -215,6 +234,9 @@ sequence_to_enter = correct_answer
 
 last_keypress_heard = 0
 last_button_pressed = -1
+
+while True:
+    bump_sunrise(0.05)
 
 #play_song()
 
