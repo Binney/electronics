@@ -11,7 +11,7 @@ chunk = 1024
 sample_format = paInt16
 channels = 2
 fs = 44100
-seconds = 5
+max_recording_length = 5
 filename = "output.wav"
 
 print("Recording")
@@ -20,9 +20,14 @@ stream = p.open(format=sample_format, channels=channels, rate=fs, frames_per_buf
 
 frames = []
 
-for i in range(0, int(fs / chunk * seconds)):
-    data = stream.read(chunk)
-    frames.append(data)
+try:
+    for i in range(0, int(fs / chunk * max_recording_length)):
+        data = stream.read(chunk)
+        frames.append(data)
+except KeyboardInterrupt:
+    pass
+
+print("Stopping recording")
 
 stream.stop_stream()
 stream.close()
