@@ -3,6 +3,8 @@ import wave
 import time
 import keyboard
 import atexit
+from os import listdir
+import random
 
 p = PyAudio()
 def terminate():
@@ -13,7 +15,7 @@ chunk = 1024
 sample_format = paInt16
 channels = 2
 fs = 44100
-max_recording_length = 5
+max_recording_length = 30
 
 def save_wave(frames):
     filename = "recording_" + str(time.time()) + ".wav"
@@ -78,11 +80,17 @@ def play_instructions_es():
     print("reproducir las instrucciones en español")
     play_wave("instrucciones.wav")
 
+def play_random():
+    # This assumes the dir only has suitable wavs in. Please deal
+    file = random.choice(listdir("./recordings"))
+    print("Your random recording is:", file)
+    play_wave("./recordings/" + file)
+
 print("Hello world!")
 print("Press space to start recording...")
 
 while True:
-    if keyboard.is_pressed("p"):
+    if keyboard.is_pressed("m"):
         take_recording()
     elif keyboard.is_pressed("g"):
         play_instructions_en()
@@ -90,3 +98,5 @@ while True:
         play_instructions_ro()
     elif keyboard.is_pressed("e"):
         play_instructions_es()
+    elif keyboard.is_pressed("p"):
+        play_random()
