@@ -36,7 +36,8 @@ def play_wave(filename):
 
     while data:
         if keyboard.is_pressed("q"):
-            continue
+            print("stopp")
+            break
         stream.write(data)
         data = wf.readframes(chunk)
 
@@ -53,7 +54,8 @@ def take_recording():
 
     for i in range(0, int(fs / chunk * max_recording_length)):
         if keyboard.is_pressed('q'):
-            continue
+            print("stopp")
+            break
         data = stream.read(chunk)
         frames.append(data)
 
@@ -66,15 +68,15 @@ def take_recording():
 
 def play_instructions_en():
     print("play English language instructions")
-    time.sleep(5)
+    play_wave("instructions.wav")
 
 def play_instructions_ro():
     print("redati instructiuni în romana")
-    time.sleep(5)
+    play_wave("instructiuni.wav")
 
 def play_instructions_es():
     print("reproducir las instrucciones en español")
-    time.sleep(5)
+    play_wave("instrucciones.wav")
 
 print("Hello world!")
 print("Press space to start recording...")
