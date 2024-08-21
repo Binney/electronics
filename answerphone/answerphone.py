@@ -1,42 +1,90 @@
 from pyaudio import PyAudio, paInt16
 import wave
+import time
+import keyboard
+import atexit
 
-print("Hello world!")
 p = PyAudio()
-
-for ii in range(p.get_device_count()):
-    print(p.get_device_info_by_index(ii))
+def terminate():
+    p.terminate()
+atexit.register(terminate)
 
 chunk = 1024
 sample_format = paInt16
 channels = 2
 fs = 44100
 max_recording_length = 5
-filename = "output.wav"
 
-print("Recording")
+def save_wave(frames):
+    filename = "recording_" + str(time.time()) + ".wav"
+    wf = wave.open(filename, "wb")
+    wf.setnchannels(channels)
+    wf.setsampwidth(p.get_sample_size(sample_format))
+    wf.setframerate(fs)
+    wf.writeframes(b''.join(frames))
+    wf.close()
 
-stream = p.open(format=sample_format, channels=channels, rate=fs, frames_per_buffer=chunk, input=True)
+def play_wave(filename):
+    wf = wave.open(filename, 'rb')
 
-frames = []
+    stream = p.open(format = p.get_format_from_width(wf.getsampwidth()),
+                    channels = wf.getnchannels(),
+                    rate = wf.getframerate(),
+                    output = True)
 
-try:
+    data = wf.readframes(chunk)
+
+    while data:
+        if keyboard.is_pressed("q"):
+            continue
+        stream.write(data)
+        data = wf.readframes(chunk)
+
+    wf.close()
+    stream.close()
+
+def take_recording():
+
+    print("Recording")
+
+    stream = p.open(format=sample_format, channels=channels, rate=fs, frames_per_buffer=chunk, input=True)
+
+    frames = []
+
     for i in range(0, int(fs / chunk * max_recording_length)):
+        if keyboard.is_pressed('q'):
+            continue
         data = stream.read(chunk)
         frames.append(data)
-except KeyboardInterrupt:
-    pass
 
-print("Stopping recording")
+    print("Stopping recording")
 
-stream.stop_stream()
-stream.close()
+    stream.stop_stream()
+    stream.close()
 
-p.terminate()
+    save_wave(frames)
 
-wf = wave.open(filename, "wb")
-wf.setnchannels(channels)
-wf.setsampwidth(p.get_sample_size(sample_format))
-wf.setframerate(fs)
-wf.writeframes(b''.join(frames))
-wf.close()
+def play_instructions_en():
+    print("play English language instructions")
+    time.sleep(5)
+
+def play_instructions_ro():
+    print("redati instructiuni în romana")
+    time.sleep(5)
+
+def play_instructions_es():
+    print("reproducir las instrucciones en español")
+    time.sleep(5)
+
+print("Hello world!")
+print("Press space to start recording...")
+
+while True:
+    if keyboard.is_pressed("p"):
+        take_recording()
+    elif keyboard.is_pressed("g"):
+        play_instructions_en()
+    elif keyboard.is_pressed("r"):
+        play_instructions_ro()
+    elif keyboard.is_pressed("e"):
+        play_instructions_es()
