@@ -27,16 +27,16 @@ struct Coord {
 
 int mode = 1;
 
-const float innerRadius = 92.0;
-const float outerRadius = 152.0;
+const float innerRadius = 60.0; // Not accurate, but looks about right
+const float outerRadius = 140.0;
 // Middle of circle = (0, 0)
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Hello world!");
-  // put your setup code here, to run once:
-  strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip.show();            // Turn OFF all pixels ASAP
+  
+  strip.begin();
+  strip.show(); // all off
   strip.setBrightness(BRIGHTNESS);
 
   fillLedLocations();
@@ -64,13 +64,13 @@ void bump_rainbow() {
 void update_rainbow() {
   for (int i=0; i<strip.numPixels(); i++) {
     Coord loc = ledsLocations[i];
-    float hue = (loc.y + outerRadius) / (outerRadius * 2); // scale of 0-1
-    strip.setPixelColor(i, strip.ColorHSV(65536L * hue + hue_offset));
+    float hue = -(loc.y + outerRadius) / (outerRadius * 2); // scale of 0-1
+    strip.setPixelColor(i, strip.ColorHSV(65536L * hue - hue_offset));
   }
   strip.show();
 }
 
-float wipe_y = 170.0;
+float wipe_y = 170.0; // bit more than just +outerRadius to -outerRadius, give it turnaround time
 bool going_up = false;
 void bump_wipe() {
   if (going_up) {
@@ -99,7 +99,7 @@ void update_wipe() {
 }
 
 void fillLedLocations() {
-  for (int i=0; i<180; i++) {
+  for (int i=0; i<LED_COUNT; i++) {
     Coord ledI = coordForLed(i);
     ledsLocations[i].x = ledI.x;
     ledsLocations[i].y = ledI.y;
@@ -109,7 +109,7 @@ void fillLedLocations() {
 Coord coordForLed(int led) {
   int digit = led_to_digit(led); 
   float angle = PI / 2 - digit * PI / 6; // radians innit, anticlockwise from 3
-  int handRadius = (outerRadius - innerRadius) * (led % 15) / 15.0; // 15 lights per digit
+  float handRadius = (outerRadius - innerRadius) * (led % 15) / 15.0; // 15 lights per digit
   Coord result;
   float radius;
   if (digit % 2 == 0) {
@@ -127,9 +127,9 @@ Coord coordForLed(int led) {
   Serial.print(led);
   Serial.print(": ");
   Serial.print(digit);
-  Serial.print(" ");
+  Serial.print(" r=");
   Serial.print(radius);
-  Serial.print(", ");
+  Serial.print(", a=");
   Serial.print(angle);
   Serial.print(" - ");
   Serial.print(result.x);
