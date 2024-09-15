@@ -7,13 +7,12 @@ void radiateRainbow(int time) {
       int end = handEndFor(number);
       for (int i=0; i<end - start; i++) {
       if (number % 2 == 0) {
-        strip.setPixelColor(start + i, strip.ColorHSV(firstPixelHue + i * radiateLength));
+        strip.setPixelColor(start + i, strip.ColorHSV(step + i * radiateLength));
       } else {
-        strip.setPixelColor(end - i, strip.ColorHSV(firstPixelHue + i * radiateLength));
+        strip.setPixelColor(end - i, strip.ColorHSV(step + i * radiateLength));
       }
     }
   }
-  firstPixelHue += 40;
   strip.show();
 }
 

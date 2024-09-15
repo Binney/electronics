@@ -1,7 +1,8 @@
 // it's the cloq
 // check it out
 #include <math.h>
-
+#include <Adafruit_NeoPixel.h>
+#include "InputDebounce.h"
 #include <RV-3028-C7.h>
 
 struct Coord {
@@ -11,23 +12,10 @@ struct Coord {
 
 RV3028 rtc;
 
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
- #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
-#endif
-
-#include "InputDebounce.h"
-
 #define BUTTON_DEBOUNCE_DELAY   20   // [ms]
-
-// D3 = GPIO6
-#define LED_PIN     6
-
-// How many NeoPixels are attached to the Arduino?
+#define LED_PIN     6 // D3 = GPIO6
 #define LED_COUNT  180
-
-// NeoPixel brightness, 0 (min) to 255 (max)
-#define BRIGHTNESS 50 // Set BRIGHTNESS to about 1/5 (max = 255)
+#define BRIGHTNESS 50 // 0-255
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
@@ -35,7 +23,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 int buttonPin = 12;
 static InputDebounce switchButton;
 
-int mode = 6;
+int mode = 7;
 
 void setup() {
 
@@ -77,22 +65,22 @@ void loop() {
   switchButton.process(now);
 
   if (mode == 0) {
+    bump_vertical_rainbow();
+  } else if (mode == 1) {
+    bumpPalette(now);
+  } else if (mode == 2) {
+    bumpWhiteOverRainbow(now);
+  } else if (mode == 3) {
+    transFlag(now);
+  } else if (mode == 4) {
+    radiateRainbow(now);
+  } else if (mode == 5) {
+    bump_vertical_wipe();
+  } else if (mode == 6) {
+    landslide(now);
+  } else {
     // Clock
     bumpClock(now);
-  } else if (mode == 1) {
-    bumpWhiteOverRainbow(now);
-  } else if (mode == 2) {
-    transFlag(now);
-  } else if (mode == 3) {
-    landslide(now);
-  } else if (mode == 4) {
-    bumpPalette(now);
-  } else if (mode == 5) {
-    radiateRainbow(now);
-  } else if (mode == 6) {
-    bump_vertical_wipe();
-  } else {
-    bump_vertical_rainbow();
   }
   // lastTime = time;
   // delay(100);
