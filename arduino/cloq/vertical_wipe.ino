@@ -1,25 +1,3 @@
-/*
-void setup() {
-  Serial.begin(9600);
-  Serial.println("Hello world!");
-  
-  strip.begin();
-  strip.show(); // all off
-  strip.setBrightness(BRIGHTNESS);
-
-  fillLedLocations();
-}
-
-void loop() {
-  if (mode == 0) {
-    bump_wipe();
-  } else {
-    bump_rainbow();
-  }
-}
-*/
-uint32_t red = strip.ColorHSV(65536L * 0.01);
-uint32_t yellow = strip.ColorHSV(65536L * 0.08);
 
 int hue_offset = 0;
 void bump_vertical_rainbow() {

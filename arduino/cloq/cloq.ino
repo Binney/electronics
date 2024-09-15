@@ -43,16 +43,10 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 int buttonPin = 12;
 static InputDebounce switchButton;
 
-int mode = 6;
+int mode = 5;
 
 void setup() {
-  // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
-  // Any other board, you can remove this part (but no harm leaving it):
-#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
-  clock_prescale_set(clock_div_1);
-#endif
-  // END of Trinket-specific code.
-  
+
   // Wire.begin();
   // while (rtc.begin() == false) {
   //   Serial.println("Something went wrong, check wiring");
@@ -161,19 +155,6 @@ void loop() {
 
 }
 
-void bumpClock(int time) {
-  strip.clear();
-  lastMins = floor(time / 1000);
-  lastHours = floor(time / (1000 * 60));
-  // "Tropick":
-  // paintTime(lastHours, lastMins % 60, 0, time, 20, (time % 5000) * 10 / 5000);
-  // "Lounge":
-  // paintTime(lastHours, lastMins % 60, 0, time, 75, (time % 5000) * 10 / 5000);
-  // "Gentle":
-  paintTime(lastHours, lastMins % 60, 0, time, 200, (time % 5000) * 10 / 5000);
-
-}
-
 void bumpPalette(int time) {
   showPalette(floor(time / 100));
 }
@@ -212,30 +193,6 @@ void showPalette(int offset) {
   }
   strip.show();
 
-}
-
-uint32_t interpolateRgb(uint32_t x, uint32_t y, float t) {
-  uint8_t r = redFrom(x) + (redFrom(y) - redFrom(x)) * t;
-  uint8_t g = greenFrom(x) + (greenFrom(y) - greenFrom(x)) * t;
-  uint8_t b = blueFrom(x) + (blueFrom(y) - blueFrom(x)) * t;
-  uint8_t w = whiteFrom(x) + (whiteFrom(y) - whiteFrom(x)) * t;
-  return strip.Color(r, g, b, w);
-}
-
-uint8_t redFrom(uint32_t colour) {
-  return (colour >> 16) & 0xFF;
-}
-
-uint8_t greenFrom(uint32_t colour) {
-  return (colour >> 8) & 0xFF;
-}
-
-uint8_t blueFrom(uint32_t colour) {
-  return colour & 0xFF;
-}
-
-uint8_t whiteFrom(uint32_t colour) {
-  return colour & 0xFF;
 }
 
 void transFlag(int time) {
@@ -328,79 +285,6 @@ void wipeNumbers() {
 
 }
 
-// void tickWipe(int hue, int tick) {
-//   for(int i=0; i<strip.numPixels(); i++) {
-//     strip.setPixelColor(i, strip.ColorHSV(hue, 100, brightnessFor(i - tick))); // Why does negative modulo never do what I expect it to :'((((
-//   }
-//   strip.show();
-// }
-
-// int brightnessFor(int delta) {
-//   return ((strip.numPixels() + delta) % strip.numPixels()) * 255 / strip.numPixels();
-// }
-
-int lengthOfHourHand = 3;
-int lengthOfNumberStrip = 15;
-
-void paintTime(int hours, int mins, int secs, uint32_t hue, int variance, int fade) {
-  paintMins(mins, hue, variance, fade);
-  paintHour(hours % 12);
-  strip.show();
-}
-
-void paintMins(int mins, uint32_t hue, int hue_spread, int fade) {
-  int hand = sixtyToTwelve(mins);
-  int end = handEndFor(hand);
-  for (int i=0; i<75; i++) {
-    int brightness = floor(lerp(255.0, 0.0, i / (75.0 - fade)));
-    if (brightness < 0) brightness = 0;
-    strip.setPixelColor((strip.numPixels() + end - i) % strip.numPixels(),
-      // strip.ColorHSV(hue + (65536L * i / hue_spread), 255, 255 - (i * 3)));
-      strip.ColorHSV(hue - (65536L * i / hue_spread), 255, brightness));
-  }
-
-  // int handStart = handStartFor(hand);
-  // int handEnd = handEndFor(hand);
-
-  // int start = handStart < handEnd ? handStart : handEnd;
-  // int end = handStart < handEnd ? handEnd : handStart;
-
-  // for (int i=start; i<=end; i++) {
-  //   strip.setPixelColor(i, strip.ColorHSV(0, 255, 255 - ));
-  // }
-}
-
-int lerp(float a, float b, float t) {
-  // https://en.cppreference.com/w/cpp/numeric/lerp
-  return a + t * (b - a);
-}
-
-void paintHour(int hour) {
-  int start = handInsideFor(hour);
-  if (hour % 2 == 0) {
-    // Count downwards
-    for (int i=start; i>start-lengthOfHourHand; i--) {
-      strip.setPixelColor(i, strip.Color(0, 0, 0, 255));
-    }
-  } else {
-    // Count upwards
-    for (int i=start; i<start+lengthOfHourHand; i++) {
-      strip.setPixelColor(i, strip.Color(100, 50, 0, 255));
-    }
-
-  }
-
-}
-
-void printTime(int hours, int mins, int secs) {
-  Serial.print("the time is: ");
-  Serial.print(hours);
-  Serial.print(":");
-  Serial.print(mins);
-  Serial.print(":");
-  Serial.println(secs);
-}
-
 // Fill strip pixels one after another with a color. Strip is NOT cleared
 // first; anything there will be covered pixel by pixel. Pass in color
 // (as a single 'packed' 32-bit value, which you can get by calling
@@ -441,68 +325,6 @@ void bumpWhiteOverRainbow(int now) {
       tail = 0;
     }
     lastTime = now;                   // Save time of last movement
-  }
-}
-
-int stars[3][2] = {
-  {3, 255},
-  {100, 100},
-  {169, 69}
-};
-
-void landslide(int now) {
-  int offset = floor(now * 1L / 100);
-  Serial.println(offset);
-  for(int i=0; i<strip.numPixels() / 2; i++) {
-    int diff = i * 10000L / strip.numPixels() - 5000L;
-    strip.setPixelColor((i + offset) % strip.numPixels(), strip.gamma32(strip.ColorHSV(diff)));
-  }
-  for(int i=strip.numPixels() / 2; i<strip.numPixels(); i++) {
-    int diff = 5000L - i * 10000L / strip.numPixels();
-    strip.setPixelColor((i + offset) % strip.numPixels(), strip.gamma32(strip.ColorHSV(diff)));
-  }
-  for (int i=0; i<3; i++) {
-    int value = stars[i][1];
-    if (value <= 0) {
-      // Remove key and roll another
-      int newStar = floor(random(strip.numPixels()));
-      stars[i][0] = newStar;
-      stars[i][1] = 255 - floor(random(50));
-    } else {
-      strip.setPixelColor(stars[i][0], strip.ColorHSV(0, 0, value));
-      stars[i][1] = value - 1;
-    }
-  }
-  strip.show();
-}
-
-void pulseWhite(uint8_t wait, int max) {
-  for(int j=0; j<max; j++) { // Ramp up from 0 to 255
-    // Fill entire strip with white at gamma-corrected brightness level 'j':
-    strip.fill(strip.Color(0, 0, 0, strip.gamma8(j)));
-    strip.show();
-    delay(wait);
-  }
-
-  for(int j=max; j>=0; j--) { // Ramp down from 255 to 0
-    strip.fill(strip.Color(0, 0, 0, strip.gamma8(j)));
-    strip.show();
-    delay(wait);
-  }
-}
-
-void pulseYellow(uint8_t wait) {
-  for(int j=0; j<256; j++) { // Ramp up from 0 to 255
-    // Fill entire strip with white at gamma-corrected brightness level 'j':
-    strip.fill(strip.Color(strip.gamma8(j), strip.gamma8(j) / 2.5, 0, 0));
-    strip.show();
-    delay(wait);
-  }
-
-  for(int j=255; j>=0; j--) { // Ramp down from 255 to 0
-    strip.fill(strip.Color(strip.gamma8(j), strip.gamma8(j) / 2.5, 0, 0));
-    strip.show();
-    delay(wait);
   }
 }
 
