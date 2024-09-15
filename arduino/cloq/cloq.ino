@@ -4,6 +4,11 @@
 
 #include <RV-3028-C7.h>
 
+struct Coord {
+  float x;
+  float y;
+} ledsLocations [180];
+
 RV3028 rtc;
 
 #include <Adafruit_NeoPixel.h>
@@ -38,7 +43,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 int buttonPin = 12;
 static InputDebounce switchButton;
 
-int mode = 0;
+int mode = 6;
 
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
@@ -68,11 +73,13 @@ void setup() {
 
   switchButton.registerCallbacks(onButtonPressed, NULL, NULL, NULL);
   switchButton.setup(buttonPin, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
+
+  fillLedLocations();
 }
 
 void onButtonPressed(uint8_t pin) {
   Serial.println("Pressed button!");
-  mode = (mode + 1) % 6;
+  mode = (mode + 1) % 8;
 }
 
 uint32_t* test_palette = new uint32_t[6]{
@@ -120,8 +127,12 @@ void loop() {
     landslide(now);
   } else if (mode == 4) {
     bumpPalette(now);
-  } else {
+  } else if (mode == 5) {
     radiateRainbow(now);
+  } else if (mode == 6) {
+    bump_vertical_wipe();
+  } else {
+    bump_vertical_rainbow();
   }
   // lastTime = time;
   // delay(100);
@@ -388,44 +399,6 @@ void printTime(int hours, int mins, int secs) {
   Serial.print(mins);
   Serial.print(":");
   Serial.println(secs);
-}
-
-int handInsideFor(int digit) {
-  if (digit % 2 == 0) {
-    return handEndFor(digit);
-  }
-  return handStartFor(digit);
-}
-
-int handOutsideFor(int digit) {
-  if (digit % 2 == 0) {
-    return handStartFor(digit);
-  }
-  return handEndFor(digit);
-}
-
-int handStartFor(int digit) {
-  if (digit >= 6) {
-    return (digit - 6) * 15;
-  }
-  if (digit >= 4) {
-    return (digit + 6) * 15 + 1;
-  }
-  return (digit + 6) * 15;
-}
-
-int handEndFor(int digit) {
-  if (digit >= 6) {
-    return (digit - 5) * 15 - 1;
-  }
-  if (digit == 3 || digit == 4) {
-    return (digit + 7) * 15;
-  }
-  return (digit + 7) * 15 - 1;
-}
-
-int sixtyToTwelve(int x) {
-  return (x - (x % 5)) / 5;
 }
 
 // Fill strip pixels one after another with a color. Strip is NOT cleared
