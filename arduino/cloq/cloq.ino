@@ -23,7 +23,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 int buttonPin = 12;
 static InputDebounce switchButton;
 
-int mode = 7;
+int mode = 2;
 
 void setup() {
 
