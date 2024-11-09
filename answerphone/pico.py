@@ -9,10 +9,10 @@ from adafruit_hid.keycode import Keycode
 
 
 class RotaryPhoneInput():
-    def __init__(self, digit_callback):
+    def __init__(self, keypress_callback):
         self.pulses = 0
         self.counting = False
-        self.digit_callback = digit_callback
+        self.keypress_callback = keypress_callback
 
         # Red
         pin_dial_pulser = digitalio.DigitalInOut(board.GP22)
@@ -27,13 +27,15 @@ class RotaryPhoneInput():
         self.dialling = Debouncer(pin_dialling)
 
         # Yellow
-        self.pin_hook = digitalio.DigitalInOut(board.GP15)
-        self.pin_hook.direction = digitalio.Direction.INPUT
-        self.pin_hook.pull = digitalio.Pull.UP
+        pin_hook = digitalio.DigitalInOut(board.GP15)
+        pin_hook.direction = digitalio.Direction.INPUT
+        pin_hook.pull = digitalio.Pull.UP
+        self.hook = Debouncer(pin_hook)
 
     def start_counting(self):
         if self.off_hook():
             print("Start counting")
+            self.keypress_callback(Keycode.C)
             self.counting = True
         else:
             print("Not counting; phone on hook")
@@ -54,7 +56,8 @@ class RotaryPhoneInput():
                 self.pulses = 0
 
                 print("Received digit: " + str(digit))
-                self.digit_callback(digit)
+                key_to_send = self.map_digit_to_keypress(digit)
+                self.keypress_callback(key_to_send)
 
     def add_pulse(self):
         if self.counting:
@@ -62,12 +65,19 @@ class RotaryPhoneInput():
             print("Add pulse: " + str(self.pulses))
 
     def off_hook(self):
-        return not self.pin_hook.value
+        return not self.hook.value
 
     def reset(self):
         self.pulses = 0
 
     def tick(self):
+        self.hook.update()
+        if self.hook.rose:
+            print("Replaced on hook")
+            self.keypress_callback(Keycode.Z)
+        if self.hook.fell:
+            print("Lifted from hook")
+            self.keypress_callback(Keycode.X)
         self.dial_pulser.update()
         if self.dial_pulser.fell or self.dial_pulser.rose:
             self.add_pulse()
@@ -80,17 +90,8 @@ class RotaryPhoneInput():
     def debug(self):
         print("Dialling: " + str(self.dialling.value) +
               "  ::  Pulser: " + str(self.dial_pulser.value) +
-              "  ::  On hook: " + str(self.pin_hook.value))
+              "  ::  On hook: " + str(self.hook.value))
         time.sleep(0.5)
-
-
-class KeyboardHIDOutput():
-    def __init__(self):
-        self.keyboard = Keyboard(usb_hid.devices)
-
-    def send_keypress_for_digit(self, digit):
-        print("Sending keypress for digit: " + str(digit))
-        self.keyboard.send(self.map_digit_to_keypress(digit))
 
     @staticmethod
     def map_digit_to_keypress(digit):
@@ -116,12 +117,20 @@ class KeyboardHIDOutput():
             return Keycode.ZERO
 
 
+class KeyboardHIDOutput():
+    def __init__(self):
+        self.keyboard = Keyboard(usb_hid.devices)
+
+    def send_keypress(self, key):
+        print("Sending keypress: " + str(key))
+        self.keyboard.send(key)
+
+
 keyboard_output = KeyboardHIDOutput()
-phone_input = RotaryPhoneInput(keyboard_output.send_keypress_for_digit)
+phone_input = RotaryPhoneInput(keyboard_output.send_keypress)
 
 print("Keyboard running")
 
 while True:
     phone_input.tick()
-    # Uncomment me to debug which pins are connected:
     #phone_input.debug()
