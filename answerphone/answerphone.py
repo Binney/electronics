@@ -1,4 +1,4 @@
-from pyaudio import PyAudio, paInt16, paFloat32
+from pyaudio import PyAudio, paInt16, paFloat32, paContinue, paAbort
 import wave
 import time
 import keyboard
@@ -6,6 +6,7 @@ import atexit
 from os import listdir
 import random
 import numpy as np
+from threading import Thread
 
 p = PyAudio()
 def terminate():
@@ -18,30 +19,38 @@ channels = 1
 fs = 44100
 max_recording_length = 5 * 60
 
-sine_duration = 0.05
+sine_duration = 5.0
 f = 220
 samples = (np.sin(2 * np.pi * np.arange(fs * sine_duration) * f  / fs)).astype(np.float32)
-output_bytes = (0.5 * samples).tobytes()
+dial_tone_bytes = (0.5 * samples).tobytes()
+
+dial_tone_interrupt = None
+
+def dial_tone_callback(in_data, frame_count, time_info, status):
+    global dial_tone_interrupt
+    if dial_tone_interrupt is None:
+        return (dial_tone_bytes, paContinue)
+    dial_tone_interrupt = None
+    return (None, paAbort)
 
 def play_tone():
     print("Playing tone")
-    stream = p.open(format=paFloat32,
+    dial_tone_stream = p.open(format=paFloat32,
                     channels=channels,
                     rate=fs,
-                    output=True)
+                    output=True,
+                    stream_callback=dial_tone_callback)
+    #global dial_tone_interrupt
+    #dial_tone_interrupt = keyboard.read_event()
     while True:
-        if keyboard.is_pressed("q"):
-            # Start recording
-            stream.stop_stream()
-            stream.close()
-            take_recording()
-            return
-        if keyboard.is_pressed("c") or keyboard.is_pressed("z"):
+        ev = keyboard.read_event()
+        if ev.name != "x":
+            global dial_tone_interrupt
+            dial_tone_interrupt = ev
             break
-        stream.write(output_bytes)
-    stream.stop_stream()
-    stream.close()
-    time.sleep(0.1)
+    print("Stopped")
+    dial_tone_stream.stop_stream()
+    dial_tone_stream.close()
 
 def save_wave(frames):
     filename = "recordings/recording_" + str(time.time()) + ".wav"
