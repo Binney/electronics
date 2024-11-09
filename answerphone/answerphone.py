@@ -1,4 +1,4 @@
-from pyaudio import PyAudio, paInt16
+from pyaudio import PyAudio, paInt16, paFloat32
 import wave
 import time
 import keyboard
@@ -16,7 +16,32 @@ chunk = 4096
 sample_format = paInt16
 channels = 1
 fs = 44100
-max_recording_length = 30
+max_recording_length = 5 * 60
+
+sine_duration = 0.05
+f = 220
+samples = (np.sin(2 * np.pi * np.arange(fs * sine_duration) * f  / fs)).astype(np.float32)
+output_bytes = (0.5 * samples).tobytes()
+
+def play_tone():
+    print("Playing tone")
+    stream = p.open(format=paFloat32,
+                    channels=channels,
+                    rate=fs,
+                    output=True)
+    while True:
+        if keyboard.is_pressed("q"):
+            # Start recording
+            stream.stop_stream()
+            stream.close()
+            take_recording()
+            return
+        if keyboard.is_pressed("c") or keyboard.is_pressed("z"):
+            break
+        stream.write(output_bytes)
+    stream.stop_stream()
+    stream.close()
+    time.sleep(0.1)
 
 def save_wave(frames):
     filename = "recordings/recording_" + str(time.time()) + ".wav"
@@ -88,9 +113,13 @@ def play_random():
     play_wave("./recordings/" + file)
 
 print("Hello world!")
-print("Press space to start recording...")
+print("Dial 1 to start recording...")
 
 while True:
+    if keyboard.is_pressed("x"):
+        # Took phone off hook
+        # Wait for dial
+        play_tone()
     if keyboard.is_pressed("q"):
         take_recording()
     elif keyboard.is_pressed("w"):
