@@ -5,6 +5,7 @@ import keyboard
 import atexit
 from os import listdir
 import random
+import numpy as np
 
 p = PyAudio()
 def terminate():
@@ -18,7 +19,7 @@ fs = 44100
 max_recording_length = 30
 
 def save_wave(frames):
-    filename = "recording_" + str(time.time()) + ".wav"
+    filename = "recordings/recording_" + str(time.time()) + ".wav"
     wf = wave.open(filename, "wb")
     wf.setnchannels(channels)
     wf.setsampwidth(p.get_sample_size(sample_format))
@@ -37,7 +38,7 @@ def play_wave(filename):
     data = wf.readframes(chunk)
 
     while data:
-        if keyboard.is_pressed("q"):
+        if keyboard.is_pressed("z") or keyboard.is_pressed("c"):
             print("stopp")
             break
         stream.write(data)
@@ -55,7 +56,7 @@ def take_recording():
     frames = []
 
     for i in range(0, int(fs / chunk * max_recording_length)):
-        if keyboard.is_pressed('q'):
+        if keyboard.is_pressed('z') or keyboard.is_pressed("c"):
             print("stopp")
             break
         data = stream.read(chunk)
@@ -90,13 +91,14 @@ print("Hello world!")
 print("Press space to start recording...")
 
 while True:
-    if keyboard.is_pressed("m"):
+    if keyboard.is_pressed("q"):
         take_recording()
-    elif keyboard.is_pressed("g"):
+    elif keyboard.is_pressed("w"):
         play_instructions_en()
-    elif keyboard.is_pressed("r"):
-        play_instructions_ro()
     elif keyboard.is_pressed("e"):
+        play_instructions_ro()
+    elif keyboard.is_pressed("r"):
         play_instructions_es()
-    elif keyboard.is_pressed("p"):
+    elif keyboard.is_pressed("t"):
         play_random()
+
