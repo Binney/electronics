@@ -96,25 +96,25 @@ class RotaryPhoneInput():
     @staticmethod
     def map_digit_to_keypress(digit):
         if digit == 1:
-            return Keycode.ONE
+            return Keycode.Q
         elif digit == 2:
-            return Keycode.TWO
+            return Keycode.W
         elif digit == 3:
-            return Keycode.THREE
+            return Keycode.E
         elif digit == 4:
-            return Keycode.FOUR
+            return Keycode.R
         elif digit == 5:
-            return Keycode.FIVE
+            return Keycode.T
         elif digit == 6:
-            return Keycode.SIX
+            return Keycode.Y
         elif digit == 7:
-            return Keycode.SEVEN
+            return Keycode.U
         elif digit == 8:
-            return Keycode.EIGHT
+            return Keycode.I
         elif digit == 9:
-            return Keycode.NINE
+            return Keycode.O
         elif digit == 0:
-            return Keycode.ZERO
+            return Keycode.P
 
 
 class KeyboardHIDOutput():
@@ -123,7 +123,9 @@ class KeyboardHIDOutput():
 
     def send_keypress(self, key):
         print("Sending keypress: " + str(key))
-        self.keyboard.send(key)
+        self.keyboard.press(key)
+        time.sleep(0.1)
+        self.keyboard.release(key)
 
 
 keyboard_output = KeyboardHIDOutput()
