@@ -11,9 +11,9 @@ def terminate():
     p.terminate()
 atexit.register(terminate)
 
-chunk = 1024
+chunk = 4096
 sample_format = paInt16
-channels = 2
+channels = 1
 fs = 44100
 max_recording_length = 30
 
