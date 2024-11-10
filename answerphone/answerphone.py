@@ -9,7 +9,10 @@ import numpy as np
 from threading import Thread
 
 p = PyAudio()
+dial_tone = wave.open("tone.wav", "rb")
+
 def terminate():
+    dial_tone.close()
     p.terminate()
 atexit.register(terminate)
 
@@ -18,13 +21,6 @@ sample_format = paInt16
 channels = 1
 fs = 44100
 max_recording_length = 5 * 60
-
-sine_duration = 5.0
-f = 220
-samples = (np.sin(2 * np.pi * np.arange(fs * sine_duration) * f  / fs)).astype(np.float32)
-dial_tone_bytes = (0.5 * samples).tobytes()
-
-dial_tone = wave.open("tone.wav", "rb")
 
 def dial_tone_callback(in_data, frame_count, time_info, status):
     data = dial_tone.readframes(frame_count)
@@ -132,10 +128,10 @@ while True:
         take_recording()
     elif keyboard.is_pressed("w"):
         play_instructions_en()
-    elif keyboard.is_pressed("e"):
-        play_instructions_ro()
-    elif keyboard.is_pressed("r"):
-        play_instructions_es()
-    elif keyboard.is_pressed("t"):
-        play_random()
+#    elif keyboard.is_pressed("e"):
+#        play_instructions_ro()
+#    elif keyboard.is_pressed("r"):
+#        play_instructions_es()
+#    elif keyboard.is_pressed("t"):
+#        play_random()
 
