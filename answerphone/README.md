@@ -32,6 +32,25 @@ python -m venv .venv
 sudo .venv/bin/python answerphone.py # keyboard requires sudo
 ```
 
+### Get it to run on autostart
+
+You can probably do this with wayfire.ini but my pi install wasn't having any of it, so let's use x11 instead
+
+`sudo raspi-config` -> Advanced options -> Wayland -> X11 -> OK -> reboot
+
+```
+sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+```
+
+Add a line at the bottom saying
+
+```
+@bash /home/dreamcat/electronics/answerphone/autostart.sh
+```
+
+Save and reboot
+
+
 ## Troubleshooting
 
 ### I'm getting a load of "Input overflowed" errors when I start recording
