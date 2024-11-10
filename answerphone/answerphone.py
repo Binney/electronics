@@ -1,11 +1,10 @@
-from pyaudio import PyAudio, paInt16, paFloat32, paContinue, paAbort
+from pyaudio import PyAudio, paInt16, paContinue
 import wave
 import time
 import keyboard
 import atexit
 from os import listdir
 import random
-import numpy as np
 from gpiozero import LED
 
 p = PyAudio()
@@ -22,7 +21,7 @@ channels = 1
 fs = 44100
 max_recording_length = 5 * 60
 
-led = LED(2)
+led = LED(26)
 
 def dial_tone_callback(in_data, frame_count, time_info, status):
     data = dial_tone.readframes(frame_count)
