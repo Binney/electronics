@@ -6,7 +6,7 @@ import atexit
 from os import listdir
 import random
 import numpy as np
-from threading import Thread
+from gpiozero import LED
 
 p = PyAudio()
 dial_tone = wave.open("tone.wav", "rb")
@@ -21,6 +21,8 @@ sample_format = paInt16
 channels = 1
 fs = 44100
 max_recording_length = 5 * 60
+
+led = LED(2)
 
 def dial_tone_callback(in_data, frame_count, time_info, status):
     data = dial_tone.readframes(frame_count)
@@ -81,6 +83,7 @@ def take_recording():
     play_wave("instructions.wav")
 
     print("Recording")
+    led.on()
 
     stream = p.open(format=sample_format, channels=channels, rate=fs, frames_per_buffer=chunk, input=True)
 
@@ -94,6 +97,7 @@ def take_recording():
         frames.append(data)
 
     print("Stopping recording")
+    led.off()
 
     stream.stop_stream()
     stream.close()
