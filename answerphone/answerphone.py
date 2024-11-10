@@ -77,6 +77,8 @@ def play_wave(filename):
     stream.close()
 
 def take_recording():
+    print("Play instructions")
+    play_wave("instructions.wav")
 
     print("Recording")
 
@@ -126,8 +128,8 @@ while True:
         play_tone()
     if keyboard.is_pressed("q"):
         take_recording()
-    elif keyboard.is_pressed("w"):
-        play_instructions_en()
+#    elif keyboard.is_pressed("w"):
+#        play_instructions_en()
 #    elif keyboard.is_pressed("e"):
 #        play_instructions_ro()
 #    elif keyboard.is_pressed("r"):
