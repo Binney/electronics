@@ -24,31 +24,30 @@ f = 220
 samples = (np.sin(2 * np.pi * np.arange(fs * sine_duration) * f  / fs)).astype(np.float32)
 dial_tone_bytes = (0.5 * samples).tobytes()
 
-dial_tone_interrupt = None
+dial_tone = wave.open("tone.wav", "rb")
 
 def dial_tone_callback(in_data, frame_count, time_info, status):
-    global dial_tone_interrupt
-    if dial_tone_interrupt is None:
-        return (dial_tone_bytes, paContinue)
-    dial_tone_interrupt = None
-    return (None, paAbort)
+    data = dial_tone.readframes(frame_count)
+    if len(data) < frame_count * 4: # qq calculate this
+        dial_tone.rewind()
+        data = dial_tone.readframes(frame_count)
+    return (data, paContinue)
 
 def play_tone():
+    time.sleep(0.1)
     print("Playing tone")
-    dial_tone_stream = p.open(format=paFloat32,
-                    channels=channels,
-                    rate=fs,
+
+    dial_tone_stream = p.open(format=p.get_format_from_width(dial_tone.getsampwidth()),
+                    channels=dial_tone.getnchannels(),
+                    rate=dial_tone.getframerate(),
                     output=True,
                     stream_callback=dial_tone_callback)
-    #global dial_tone_interrupt
-    #dial_tone_interrupt = keyboard.read_event()
-    while True:
-        ev = keyboard.read_event()
-        if ev.name != "x":
-            global dial_tone_interrupt
-            dial_tone_interrupt = ev
-            break
-    print("Stopped")
+
+    # Block until any key pressed
+    ev = keyboard.read_event()
+    print("Stopped tone")
+
+    # This automatically stops calling the callback
     dial_tone_stream.stop_stream()
     dial_tone_stream.close()
 
