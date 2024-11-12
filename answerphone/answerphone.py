@@ -6,6 +6,7 @@ import atexit
 from os import listdir
 import random
 from gpiozero import LED
+import traceback
 
 p = PyAudio()
 dial_tone = wave.open("tone.wav", "rb")
@@ -20,6 +21,8 @@ sample_format = paInt16
 channels = 1
 fs = 44100
 max_recording_length = 5 * 60
+
+backup_external = True
 
 led = LED(26)
 
@@ -54,14 +57,24 @@ def play_tone():
     dial_tone_stream.stop_stream()
     dial_tone_stream.close()
 
-def save_wave(frames):
-    filename = "recordings/recording_" + str(time.time()) + ".wav"
+def save_wave(filename, frames):
     wf = wave.open(filename, "wb")
     wf.setnchannels(channels)
     wf.setsampwidth(p.get_sample_size(sample_format))
     wf.setframerate(fs)
     wf.writeframes(b''.join(frames))
     wf.close()
+
+def save_recording(frames):
+    filename = "recording_" + str(time.time()) + ".wav"
+    print("Saving internal: " + filename)
+    save_wave("recordings/" + filename, frames)
+    if backup_external:
+        print("Saving to SD card: " + filename)
+        try:
+            save_wave("/mnt/dreamcat/PHONEBACKUP/recordings/" + filename, frames)
+        except:
+            print("Couldn't save file to SD card")
 
 def play_wave(filename):
     wf = wave.open(filename, 'rb')
@@ -107,7 +120,7 @@ def take_recording():
     stream.stop_stream()
     stream.close()
 
-    save_wave(frames)
+    save_recording(frames)
 
 def play_instructions_en():
     print("play English language instructions")
@@ -135,12 +148,13 @@ print("Hello world!")
 print("Dial 1 to start recording...")
 
 while True:
-    if keyboard.is_pressed("x"):
-        # Took phone off hook
-        # Wait for dial
-        play_tone()
-    if keyboard.is_pressed("q"):
-        take_recording()
+    try:
+        if keyboard.is_pressed("x"):
+            # Took phone off hook
+            # Wait for dial
+            play_tone()
+        if keyboard.is_pressed("q"):
+            take_recording()
 #    elif keyboard.is_pressed("w"):
 #        play_instructions_en()
 #    elif keyboard.is_pressed("e"):
@@ -149,4 +163,11 @@ while True:
 #        play_instructions_es()
 #    elif keyboard.is_pressed("t"):
 #        play_random()
+    except KeyboardInterrupt:
+        print("Byeeeeeeeee")
+        break
+    except:
+        print(traceback.format_exc())
+        print("Something went wrong. Oh well! Continue anyway")
+        time.sleep(1)
 
