@@ -23,6 +23,12 @@ max_recording_length = 5 * 60
 
 led = LED(26)
 
+for i in range(4):
+    led.on()
+    time.sleep(0.5)
+    led.off()
+    time.sleep(0.5)
+
 def dial_tone_callback(in_data, frame_count, time_info, status):
     data = dial_tone.readframes(frame_count)
     if len(data) < frame_count * 4: # qq calculate this
@@ -120,6 +126,10 @@ def play_random():
     file = random.choice(listdir("./recordings"))
     print("Your random recording is:", file)
     play_wave("./recordings/" + file)
+
+led.on()
+time.sleep(1)
+led.off()
 
 print("Hello world!")
 print("Dial 1 to start recording...")
