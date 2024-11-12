@@ -7,6 +7,7 @@ from os import listdir
 import random
 from gpiozero import LED
 import traceback
+from datetime import datetime
 
 p = PyAudio()
 dial_tone = wave.open("tone.wav", "rb")
@@ -66,15 +67,17 @@ def save_wave(filename, frames):
     wf.close()
 
 def save_recording(frames):
-    filename = "recording_" + str(time.time()) + ".wav"
+    filename = "recording_" + datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S') + ".wav"
     print("Saving internal: " + filename)
     save_wave("recordings/" + filename, frames)
     if backup_external:
         print("Saving to SD card: " + filename)
         try:
-            save_wave("/mnt/dreamcat/PHONEBACKUP/recordings/" + filename, frames)
+            save_wave("/media/dreamcat/PHONEBACKUP/recordings/" + filename, frames)
         except:
+            traceback.format_exc()
             print("Couldn't save file to SD card")
+
 
 def play_wave(filename):
     wf = wave.open(filename, 'rb')
