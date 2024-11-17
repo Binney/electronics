@@ -1,4 +1,4 @@
-recordings/
+recordings/*.wav
 .venv/
-logs/
+logs/*.txt
 

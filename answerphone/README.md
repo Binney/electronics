@@ -22,6 +22,28 @@ On your main computer, connect to the same network and do `ssh [username]@[ip]`,
 
 OK, ready to go!
 
+### Disable HDMI audio
+
+Had a load of problems with pi wanting to play through HDMI rather than over USB, so just disable it now.
+
+```
+sudo nano /boot/firmware/config.txt
+```
+
+Look for the line that says
+
+```
+dtoverlay=vc4-kms-v3d
+```
+
+and replace it with
+
+```
+dtoverlay=vc4-kms-v3d,noaudio
+```
+
+then reboot.
+
 ### Get the code running
 
 Git clone into this repository
@@ -80,3 +102,25 @@ Now you can connect to the pi wifi from another device and SSH in - from a lapto
 The script has made some wrong assumptions about your hardware, try changing `chunk` or `fs`
 
 https://stackoverflow.com/questions/10733903
+
+### It's just super quiet
+
+Well turn the volume up then
+
+Do that while you have it plugged into a screen, or via ssh:
+
+```
+amixer scontrols
+```
+
+Note the control names, I had one called `Master` so I did
+
+```
+amixer -M sget Master
+```
+
+which said they were both at 40%, up that to 100%:
+
+```
+amixer -q -M sset Master 100%
+```
