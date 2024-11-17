@@ -164,8 +164,8 @@ while True:
 #        play_instructions_ro()
 #    elif keyboard.is_pressed("r"):
 #        play_instructions_es()
-#    elif keyboard.is_pressed("t"):
-#        play_random()
+        elif keyboard.is_pressed("p"):
+            play_random()
     except KeyboardInterrupt:
         print("Byeeeeeeeee")
         break
