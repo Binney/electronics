@@ -22,13 +22,22 @@ On your main computer, connect to the same network and do `ssh [username]@[ip]`,
 
 OK, ready to go!
 
-### Git clone into this repository
+### Get the code running
+
+Git clone into this repository
 
 cd to the folder this README is in
 
 ```
+sudo dpkg --configure -a # Update apt packages
+sudo apt-get install portaudio10-dev # Prerequisite for pyaudio
 python -m venv .venv
-.venv/bin/pip install requirements.txt
+.venv/bin/pip install -r requirements.txt
+```
+
+Now you can run the actual code:
+
+```
 sudo .venv/bin/python answerphone.py # keyboard requires sudo
 ```
 
@@ -50,6 +59,19 @@ Add a line at the bottom saying
 
 Save and reboot
 
+### Connect during the event
+
+(Optional but recommended)
+
+Set up a local hotspot so you can connect directly to the pi while it's on and check it's ok/troubleshoot.
+
+Easiest to do through the desktop and you won't be able to do it all via ssh anyway as it involves disconnecting from the wifi.
+
+Wifi icon in the top right corner of the screen -> click -> Advanced Options -> Create Wireless Hotspot -> WPA & WPA2 (can't seem to get WPA3 to work with a Zero?) -> choose a name and password you're satisfied aren't hackable during the event -> OK.
+
+Note the IP address of the pi (hover over the wifi icon again).
+
+Now you can connect to the pi wifi from another device and SSH in - from a laptop, or even a phone with something like juicessh installed.
 
 ## Troubleshooting
 
