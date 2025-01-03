@@ -20,10 +20,10 @@ RV3028 rtc;
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 
-int buttonPin = 12;
+int buttonPin = 5; // actually D5
 static InputDebounce switchButton;
 
-int mode = 7;
+int mode = 0;
 
 void setup() {
 

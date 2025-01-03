@@ -7,8 +7,8 @@ uint32_t* test_palette = new uint32_t[6]{
   strip.Color(225, 172, 187)
 };
 
-uint32_t transPink = strip.ColorHSV(305 * 65536L / 360);
-uint32_t transBlue = strip.ColorHSV(65536L / 2);
+uint32_t transPink = hueAngleToColour(305);
+uint32_t transBlue = hueAngleToColour(180);
 uint32_t white = strip.Color(0, 0, 0, 255);
 
 uint32_t* trans_flag = new uint32_t[6]{
