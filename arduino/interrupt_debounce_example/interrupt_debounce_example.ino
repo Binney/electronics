@@ -3,7 +3,7 @@
 
 volatile unsigned int presses;
 volatile unsigned int lastPressHeard;
-volatile unsigned int stablePinState;
+volatile unsigned int stablePinState = 1;
 volatile unsigned int lastCheckedInterrupt;
 int debounceInterval = 50;
 
@@ -12,6 +12,11 @@ int lastPrintedAt;
 
 void IRAM_ATTR pinthing()
 {
+  if (millis() - lastCheckedInterrupt > debounceInterval * 3) {
+    // It's been a long time since we last called interrupt,
+    // so wherever the pin state was, has flipped
+    stablePinState = 1 - stablePinState;
+  }
   if (!digitalRead(REED) && stablePinState && millis() - lastCheckedInterrupt > debounceInterval)
   {
     lastPressHeard = millis();
@@ -43,7 +48,7 @@ void loop() {
     Serial.print("\tPin state: ");
     Serial.println(digitalRead(REED));
   }
-  if (millis() - lastPressHeard > debounceInterval) {
-    stablePinState = digitalRead(REED);
-  }
+  // if (millis() - lastPressHeard > debounceInterval) {
+  //   stablePinState = digitalRead(REED);
+  // }
 }
