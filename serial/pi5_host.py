@@ -8,7 +8,7 @@
 from serial import Serial
 import time
 
-ser = Serial('/dev/ttyAMA0', 9600)
+ser = Serial('/dev/ttyAMA0', 115200)
 
 while True:
     print("sending")
