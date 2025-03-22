@@ -48,10 +48,10 @@ for port in ports:
 while True:
     print("loop start")
     for pico in picos:
-        if pico.name == "I am pico #0":
-            pico.send("action for 0")
-        elif pico.name == "I am pico #1":
-            pico.send("action for 1")
+        if pico.name == "fish":
+            pico.send("action for fish")
+        elif pico.name == "crab":
+            pico.send("action for crab")
         else:
             pico.send("action for unknown pico")
     time.sleep(2)
