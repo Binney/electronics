@@ -6,9 +6,32 @@ import board
 import digitalio
 import select
 import sys
+import usb_cdc
 
 led = digitalio.DigitalInOut(board.LED)
 led.direction = digitalio.Direction.OUTPUT
+
+def read_serial(serial):
+    text = ""
+    available = serial.in_waiting
+    while available:
+        raw = serial.read(available)
+        text = raw.decode("utf-8")
+        available = serial.in_waiting
+    return text
+
+def wait_for_handshake():
+    buffer = ""
+    serial = usb_cdc.console
+    while True:
+        time.sleep(0.01)
+        print("fish")
+        buffer += read_serial(serial)
+        if buffer.endswith("\n"):
+            print("Ready to go!")
+            return
+
+wait_for_handshake()
 
 print("reading")
 while True:
