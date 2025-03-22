@@ -23,7 +23,9 @@ class ConnectedPico:
         self.serial.write(f"{self.port} > {message}\n")
 
     def read(self):
-        return self.serial.read_until()
+        message = self.serial.read_until()
+        real_message_start = message.index("My name is: ")
+        return message[real_message_start + 12:-5] # message ends with "\r\n"
 
 def get_connected_devices():
     result = []
@@ -43,6 +45,7 @@ for port in ports:
     handshake = pico.read() # TODO: make this ignore the start and end bytes e.g. prompt
     print(f"Made a handshake: {handshake}")
     pico.set_name(handshake)
+    pico.send("Acknowledge: fish!")
     picos.append(pico)
 
 while True:

@@ -25,9 +25,9 @@ def wait_for_handshake():
     serial = usb_cdc.console
     while True:
         time.sleep(0.01)
-        print("fish")
+        print("My name is: fish")
         buffer += read_serial(serial)
-        if buffer.endswith("\n"):
+        if buffer.endswith("Acknowledge: fish!\n"):
             print("Ready to go!")
             return
 
