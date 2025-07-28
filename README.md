@@ -16,9 +16,11 @@ Here are some useful links and basic code snippets!
 
 [My etch a sketch mouse tutorial](https://blog.dreamcat.uk/etch-a-sketch-mouse-with-raspberry-pi-pico)
 
-[Adafruit HID docs](https://learn.adafruit.com/circuitpython-essentials/circuitpython-hid-keyboard-and-mouse)
+[Adafruit HID tutorial](https://learn.adafruit.com/circuitpython-essentials/circuitpython-hid-keyboard-and-mouse)
 
-[Gamepad controller with Adafruit HID docs](https://learn.adafruit.com/custom-hid-devices-in-circuitpython?view=all)
+[Adafruit HID docs and examples using mouse, keyboard and gamepad](https://docs.circuitpython.org/projects/hid/en/latest/examples.html)
+
+[Custom HID descriptors](https://learn.adafruit.com/custom-hid-devices-in-circuitpython?view=all) (more complex)
 
 
 ## Sample code
@@ -83,7 +85,7 @@ while True:
 		print('Just released')
 ```
 
-### Keyboard
+### Basic keyboard
 
 ```
 import usb_hid
@@ -95,5 +97,22 @@ keyboard = Keyboard(usb_hid.devices)
 
 while True:
     keyboard.send(Keycode.CAPS_LOCK)
+    sleep(1)
+```
+
+### Separate press and release keyboard
+
+```
+import usb_hid
+from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keycode import Keycode
+from time import sleep
+
+keyboard = Keyboard(usb_hid.devices)
+
+while True:
+    keyboard.press(Keycode.CAPS_LOCK)
+    sleep(0.5)
+    keyboard.release(Keycode.CAPS_LOCK)
     sleep(1)
 ```
