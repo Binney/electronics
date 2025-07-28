@@ -22,6 +22,19 @@ Here are some useful links and basic code snippets!
 
 [Custom HID descriptors](https://learn.adafruit.com/custom-hid-devices-in-circuitpython?view=all) (more complex)
 
+## Pico setup
+
+1. Download UF2 for the correct board (28th July: we are using Pi Pico, not W, not 2)
+1. Plug Pico into your computer with a decent USB Micro cable.
+1. Copy UF2 to root of device.
+1. Open VS Code with extension installed.
+1. CircuitPython: Select Serial Port -> click whatever it says
+1. CircuitPython: Choose CircuitPython Board -> Raspberry Pi:Pico
+1. CircuitPython: Open Serial Monitor
+1. Install dependencies: CircuitPython: Show Available Libraries
+1. Write code
+1. Hack
+1. Have fun!
 
 ## Sample code
 
