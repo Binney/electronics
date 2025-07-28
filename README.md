@@ -22,6 +22,8 @@ Here are some useful links and basic code snippets!
 
 [Custom HID descriptors](https://learn.adafruit.com/custom-hid-devices-in-circuitpython?view=all) (more complex)
 
+[Cool stuff to do with Velostat](https://cdn-shop.adafruit.com/datasheets/HandcraftingSensors.pdf) (electronic circuits made of fabric)
+
 ## Pico setup
 
 1. Download UF2 for the correct board (28th July: we are using Pi Pico, not W, not 2)
