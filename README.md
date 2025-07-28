@@ -4,6 +4,8 @@ Here are some useful links and basic code snippets!
 
 ## Links
 
+[Interactive Pi Pico Pinout](https://pico.pinout.xyz/)
+
 [CircuitPython uf2 download](https://circuitpython.org/board/raspberry_pi_pico/)
 
 [Adafruit CircuitPython library bundle](https://circuitpython.org/libraries) (you shouldn't need this if you're using the VS Code extension)
@@ -11,6 +13,12 @@ Here are some useful links and basic code snippets!
 [VS Code](https://code.visualstudio.com/)
 
 [CircuitPython v2 VS Code extension](https://marketplace.visualstudio.com/items?itemName=wmerkens.vscode-circuitpython-v2)
+
+[My etch a sketch mouse tutorial](https://blog.dreamcat.uk/etch-a-sketch-mouse-with-raspberry-pi-pico)
+
+[Adafruit HID docs](https://learn.adafruit.com/circuitpython-essentials/circuitpython-hid-keyboard-and-mouse)
+
+[Gamepad controller with Adafruit HID docs](https://learn.adafruit.com/custom-hid-devices-in-circuitpython?view=all)
 
 
 ## Sample code
