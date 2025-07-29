@@ -14,6 +14,8 @@ Here are some useful links and basic code snippets!
 
 [CircuitPython v2 VS Code extension](https://marketplace.visualstudio.com/items?itemName=wmerkens.vscode-circuitpython-v2)
 
+### Keyboard, mouse and gamepad
+
 [My etch a sketch mouse tutorial](https://blog.dreamcat.uk/etch-a-sketch-mouse-with-raspberry-pi-pico)
 
 [Adafruit HID tutorial](https://learn.adafruit.com/circuitpython-essentials/circuitpython-hid-keyboard-and-mouse)
@@ -23,6 +25,16 @@ Here are some useful links and basic code snippets!
 [Custom HID descriptors](https://learn.adafruit.com/custom-hid-devices-in-circuitpython?view=all) (more complex)
 
 [Cool stuff to do with Velostat](https://cdn-shop.adafruit.com/datasheets/HandcraftingSensors.pdf) (electronic circuits made of fabric)
+
+### Where to buy
+
+There are plenty of good online stores for electronics equipment but the 3 I like most are
+
+[The Pi Hut](https://thepihut.com/) - very thorough collection and good documentation on most listings
+
+[Pimoroni](https://shop.pimoroni.com/) - more suited to kits and fun variants on the basics (e.g. they do a [pi pico but it's huge](https://shop.pimoroni.com/products/pico-jumbo))
+
+[CPC Farnell](https://cpc.farnell.com/) - good if you're doing a bulk order and you know exactly what you want, will be a bit cheaper than Pi Hut or Pimoroni - but worse UX and I've definitely ordered the wrong thing before because the description wasn't as clear
 
 ## Hardware Hacking Evening slides
 
