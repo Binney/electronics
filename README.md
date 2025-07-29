@@ -26,7 +26,7 @@ Here are some useful links and basic code snippets!
 
 ## Hardware Hacking Evening slides
 
-[They're here!](./Hypatia_Hardware_Evening.pdf)
+[They're here!](https://binney.github.io/electronics/Hypatia_Hardware_Evening.pdf)
 
 ## Pico setup
 
