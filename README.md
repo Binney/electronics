@@ -34,7 +34,7 @@ There are plenty of good online stores for electronics equipment but the 3 I lik
 
 [Pimoroni](https://shop.pimoroni.com/) - more suited to kits and fun variants on the basics (e.g. they do a [pi pico but it's huge](https://shop.pimoroni.com/products/pico-jumbo))
 
-[CPC Farnell](https://cpc.farnell.com/) - good if you're doing a bulk order and you know exactly what you want, will be a bit cheaper than Pi Hut or Pimoroni - but worse UX and I've definitely ordered the wrong thing before because the description wasn't as clear
+[CPC Farnell](https://cpc.farnell.com/c/maker-circuit-development) - good if you're doing a bulk order and you know exactly what you want, will be a bit cheaper than Pi Hut or Pimoroni - but worse UX and I've definitely ordered the wrong thing before because the description wasn't as clear
 
 ## Hardware Hacking Evening slides
 
