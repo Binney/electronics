@@ -76,19 +76,24 @@ current_index = 0 # keeps track of the index of the temperature we're showing
 
 def arrow(size, skew, thickness, x, y, angle):
     points = [(0, 0), (size, skew), (size + thickness, skew), (thickness, 0), (size + thickness, -skew), (size, -skew)]
+    points = [
+        (int(round(px * cos(angle) - py * sin(angle))),
+         int(round(px * sin(angle) + py * cos(angle))))
+        for px, py in points
+    ]
     points = [(p[0] + x, p[1] + y) for p in points]
-    return FilledPolygon(points, fill=0xFFFF00)
+    return FilledPolygon(points, fill=0xdb010e)
 
-r1 = 80
-r2 = 90
+r1 = 90
+r2 = 80
 
 # Main loop
 while True:
     # The code below uses the drawing api to render to the screen, see https://learn.adafruit.com/circuitpython-display-support-using-displayio/ui-quickstart
     my_display_group = displayio.Group() # https://learn.adafruit.com/circuitpython-display-support-using-displayio/ui-quickstart#groups-3033357
 
-    inner_clock_outline = Circle(display.width // 2, display.height // 2, r1, outline=0xAA0000, stroke=4)
-    outer_clock_outline = Circle(display.width // 2, display.height // 2, r2, outline=0xAA0000, stroke=4)
+    inner_clock_outline = Circle(display.width // 2, display.height // 2, r1, outline=0xdb010e, stroke=4)
+    outer_clock_outline = Circle(display.width // 2, display.height // 2, r2, outline=0xdb010e, stroke=4)
     my_display_group.append(inner_clock_outline)
     my_display_group.append(outer_clock_outline)
 
@@ -100,14 +105,15 @@ while True:
     my_display_group.append(time_label)
 
     seconds = time_value.tm_sec
-    sec_hand_coords = (display.width // 2 + int(r1 * -1 * sin(radians(seconds * 6))),
-                       display.height // 2 + int(r1 * cos(radians(seconds * 6))))
-    tr1 = arrow(10, 8, 8, sec_hand_coords[0], sec_hand_coords[1], 0)
+    angle = radians(seconds * 6)
+    sec_hand_coords = (display.width // 2 + int(r1 * -1 * sin(angle)),
+                       display.height // 2 + int(r1 * cos(angle)))
+    tr1 = arrow(10, 8, 6, sec_hand_coords[0], sec_hand_coords[1], angle)
     my_display_group.append(tr1)
 
-    sec_hand_coords = (display.width // 2 + int(r2 * -1 * sin(radians(seconds * 6))),
-                       display.height // 2 + int(r2 * cos(radians(seconds * 6))))
-    tr2 = arrow(10, 8, 8, display.width - sec_hand_coords[0], sec_hand_coords[1], 0)
+    sec_hand_coords = (display.width // 2 + int(r2 * -1 * sin(angle)),
+                       display.height // 2 + int(r2 * cos(angle)))
+    tr2 = arrow(-10, 8, -6, display.width - sec_hand_coords[0], sec_hand_coords[1], -angle)
     my_display_group.append(tr2)
 
     # Here's an example of how to use the touch screen. Docs: https://docs.circuitpython.org/projects/cst8xx/en/latest/
