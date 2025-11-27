@@ -2,6 +2,7 @@ from math import cos, sin, radians
 import os
 
 import time as system_time
+from time import sleep
 
 import adafruit_connection_manager
 import wifi
@@ -29,28 +30,33 @@ display.rotation = 0 # Rotate the display set to 0 if you want it upright, 180 f
 ctp = adafruit_cst8xx.Adafruit_CST8XX(board.I2C())
 events = adafruit_cst8xx.EVENTS
 
+connected = False
+wifi_try = 0
+
 # Get WiFi details, ensure these are setup in settings.toml
-ssid = os.getenv("CIRCUITPY_WIFI_SSID")
-password = os.getenv("CIRCUITPY_WIFI_PASSWORD")
-weather_url = "https://api.open-meteo.com/v1/forecast?latitude=51.5085&longitude=-0.1257&hourly=temperature_2m&timezone=auto&forecast_days=1"
+ssids = os.getenv("KNOWN_WIFIS")
+passwords = os.getenv("KNOWN_WIFI_PASSWORDS")
+
+while not connected:
+    ssid = ssids.split(",")[wifi_try].strip()
+    password = passwords.split(",")[wifi_try].strip()
+
+    try:
+        print(f"\nConnecting to {ssid}...")
+        wifi.radio.connect(ssid, password)
+        connected = True
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        wifi_try += 1
+        if wifi_try >= len(ssids.split(",")):
+            wifi_try = 0
+            sleep(5)
+print("✅ Wifi!")
 
 # Initalize Wifi, Socket Pool, Request Session
 pool = adafruit_connection_manager.get_radio_socketpool(wifi.radio)
 ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl_context)
-rssi = wifi.radio.ap_info.rssi
-
-print(f"\nConnecting to {ssid}...")
-print(f"Signal Strength: {rssi}")
-connected = False
-while not connected:
-    try:
-        # Connect to the Wi-Fi network
-        wifi.radio.connect(ssid, password)
-        connected = True
-    except OSError as e:
-        print(f"❌ OSError: {e}")
-print("✅ Wifi!")
 
 found_ntp = False
 while not found_ntp:
@@ -77,9 +83,14 @@ def arrow(size, skew, thickness, x, y, angle):
 r1 = 95
 r2 = 83
 
-while True:
-    now = system_time.monotonic()
+last_tick = system_time.monotonic()
+start_time = (system_time.monotonic() - system_time.localtime().tm_sec) // 1
+last_sec_displayed = system_time.localtime().tm_sec
+last_time_changed = system_time.monotonic()
+frames = 0
 
+while True:
+    frames += 1
     my_display_group = displayio.Group()
 
     inner_clock_outline = Circle(display.width // 2, display.height // 2, r1 + 2, outline=0xdb010e, stroke=5)
@@ -106,25 +117,14 @@ while True:
     tr2 = arrow(-25, 11, -10, display.width - sec_hand_coords[0], sec_hand_coords[1], -angle)
     my_display_group.append(tr2)
 
-    # Here's an example of how to use the touch screen. Docs: https://docs.circuitpython.org/projects/cst8xx/en/latest/
-    # The touchscreen is intialised at the start of the program
-    # You only get the x, y coordinates of the touch, so you'll have to cross reference that with the coordinates you put your ui elements at.
-    # touch_text = "no touch detected"
-    # if ctp.touched:
-    #     touch = ctp.touches[0]
-    #     x = touch["x"]
-    #     y = touch["y"]
-    #     event = events[touch["event_id"]]
-    #     touch_text = f"touch at x: {x}, y: {y}, event: {event}"
-    #     if (x - display.width // 2) ** 2 + (y - display.height // 2) ** 2 < r2 ** 2:
-    #         sl()
-
-    # touch_label = label.Label(terminalio.FONT, text=touch_text)
-    # touch_label.x = 20
-    # touch_label.y = 200
-    # my_display_group.append(touch_label)
-
     display.root_group = my_display_group
 
-    
+    # we introduce a bit of a wait so it ticks evenly
+    if seconds != last_sec_displayed:
+        # time has changed since last tick.
+        # let's give it a little longer
+        # really ain't a great algorithm but whatever
+        sleep(0.1)
+        last_time_changed = system_time.monotonic()
+    last_sec_displayed = seconds
 
