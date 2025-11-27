@@ -52,6 +52,7 @@ ntp = adafruit_ntp.NTP(pool, tz_offset=0)  # tz_offset in hours (0 for UTC, or -
 
 def arrow(size, skew, thickness, x, y, angle):
     points = [(0, 0), (size, skew), (size + thickness, skew), (thickness, 0), (size + thickness, -skew), (size, -skew)]
+    points = [(p[0] - size * 1.5 // 2, p[1]) for p in points]
     points = [
         (int(round(px * cos(angle) - py * sin(angle))),
          int(round(px * sin(angle) + py * cos(angle))))
@@ -63,7 +64,6 @@ def arrow(size, skew, thickness, x, y, angle):
 r1 = 95
 r2 = 83
 
-# Main loop
 while True:
     now = system_time.monotonic()
 
@@ -81,18 +81,16 @@ while True:
     time_label.anchored_position = (display.width // 2, display.height // 2)
     my_display_group.append(time_label)
 
-    # seconds = time_value.tm_sec
-    # we are actually faking this entirely
-    seconds = (now % 60) + (now % 1)
+    seconds = time_value.tm_sec
     angle = radians(seconds * 6 + 180)
     sec_hand_coords = (display.width // 2 + int(r1 * -1 * sin(angle)),
                        display.height // 2 + int(r1 * cos(angle)))
-    tr1 = arrow(15, 11, 7, sec_hand_coords[0], sec_hand_coords[1], angle)
+    tr1 = arrow(25, 11, 10, sec_hand_coords[0], sec_hand_coords[1], angle)
     my_display_group.append(tr1)
 
     sec_hand_coords = (display.width // 2 + int(r2 * -1 * sin(angle)),
                        display.height // 2 + int(r2 * cos(angle)))
-    tr2 = arrow(-15, 11, -7, display.width - sec_hand_coords[0], sec_hand_coords[1], -angle)
+    tr2 = arrow(-25, 11, -10, display.width - sec_hand_coords[0], sec_hand_coords[1], -angle)
     my_display_group.append(tr2)
 
     # Here's an example of how to use the touch screen. Docs: https://docs.circuitpython.org/projects/cst8xx/en/latest/
@@ -105,6 +103,8 @@ while True:
     #     y = touch["y"]
     #     event = events[touch["event_id"]]
     #     touch_text = f"touch at x: {x}, y: {y}, event: {event}"
+    #     if (x - display.width // 2) ** 2 + (y - display.height // 2) ** 2 < r2 ** 2:
+    #         sl()
 
     # touch_label = label.Label(terminalio.FONT, text=touch_text)
     # touch_label.x = 20
