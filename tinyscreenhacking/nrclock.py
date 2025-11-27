@@ -41,14 +41,25 @@ rssi = wifi.radio.ap_info.rssi
 
 print(f"\nConnecting to {ssid}...")
 print(f"Signal Strength: {rssi}")
-try:
-    # Connect to the Wi-Fi network
-    wifi.radio.connect(ssid, password)
-except OSError as e:
-    print(f"❌ OSError: {e}")
+connected = False
+while not connected:
+    try:
+        # Connect to the Wi-Fi network
+        wifi.radio.connect(ssid, password)
+        connected = True
+    except OSError as e:
+        print(f"❌ OSError: {e}")
 print("✅ Wifi!")
 
-ntp = adafruit_ntp.NTP(pool, tz_offset=0)  # tz_offset in hours (0 for UTC, or -5 for EST, etc.)
+found_ntp = False
+while not found_ntp:
+    try:
+        ntp = adafruit_ntp.NTP(pool, tz_offset=0)  # tz_offset in hours (0 for UTC, or -5 for EST, etc.)
+        found_ntp = True
+    except Exception as e:
+        print(f"❌ NTP Error: {e}")
+print("✅ NTP!")
+
 
 def arrow(size, skew, thickness, x, y, angle):
     points = [(0, 0), (size, skew), (size + thickness, skew), (thickness, 0), (size + thickness, -skew), (size, -skew)]
