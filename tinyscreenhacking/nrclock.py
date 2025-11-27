@@ -19,6 +19,7 @@ import adafruit_ntp
 import rtc
 
 import adafruit_cst8xx
+from adafruit_bitmap_font import bitmap_font
 
 # The display is 320x240 pixels
 display = board.DISPLAY
@@ -60,6 +61,7 @@ while not found_ntp:
         print(f"❌ NTP Error: {e}")
 print("✅ NTP!")
 
+font = bitmap_font.load_font("fonts/logisoso46.bdf")
 
 def arrow(size, skew, thickness, x, y, angle):
     points = [(0, 0), (size, skew), (size + thickness, skew), (thickness, 0), (size + thickness, -skew), (size, -skew)]
@@ -87,7 +89,7 @@ while True:
 
     rtc.RTC().datetime = ntp.datetime
     time_value = system_time.localtime()
-    time_label = label.Label(terminalio.FONT, text=f"{time_value.tm_hour:02d}:{time_value.tm_min:02d}", color=0xFFFFFF, scale=3)
+    time_label = label.Label(font, text=f"{time_value.tm_hour:02d}:{time_value.tm_min:02d}", color=0xFFFFFF, scale=1)
     time_label.anchor_point = (0.5, 0.5)
     time_label.anchored_position = (display.width // 2, display.height // 2)
     my_display_group.append(time_label)
