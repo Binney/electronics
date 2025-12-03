@@ -98,7 +98,12 @@ while True:
     my_display_group.append(inner_clock_outline)
     my_display_group.append(outer_clock_outline)
 
-    rtc.RTC().datetime = ntp.datetime
+    try:
+        rtc.RTC().datetime = ntp.datetime
+    except Exception as e:
+        print(f"❌ RTC Error: {e}")
+        pass  # if NTP fails, just keep going with last known time
+
     time_value = system_time.localtime()
     time_label = label.Label(font, text=f"{time_value.tm_hour:02d}:{time_value.tm_min:02d}", color=0xFFFFFF, scale=1)
     time_label.anchor_point = (0.5, 0.5)
