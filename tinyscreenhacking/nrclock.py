@@ -83,10 +83,9 @@ def arrow(size, skew, thickness, x, y, angle):
 r1 = 95
 r2 = 83
 
-last_tick = system_time.monotonic()
 start_time = (system_time.monotonic() - system_time.localtime().tm_sec) // 1
-last_sec_displayed = system_time.localtime().tm_sec
-last_time_changed = system_time.monotonic()
+last_frame_time = system_time.monotonic()
+seconds = system_time.localtime().tm_sec
 frames = 0
 
 while True:
@@ -110,7 +109,12 @@ while True:
     time_label.anchored_position = (display.width // 2, display.height // 2)
     my_display_group.append(time_label)
 
-    seconds = time_value.tm_sec
+    # we tick every second and re-sync every minute,
+    # so frames happen evenly
+    seconds += 1
+    if (seconds % 60) + 15 >= 60:
+        # Loop back at the 15 sec mark, because the top and bottom are when the hands line up and that's pretty
+        seconds = time_value.tm_sec
     angle = radians(seconds * 6 + 180)
     sec_hand_coords = (display.width // 2 + int(r1 * -1 * sin(angle)),
                        display.height // 2 + int(r1 * cos(angle)))
@@ -124,12 +128,12 @@ while True:
 
     display.root_group = my_display_group
 
-    # we introduce a bit of a wait so it ticks evenly
-    if seconds != last_sec_displayed:
-        # time has changed since last tick.
-        # let's give it a little longer
-        # really ain't a great algorithm but whatever
-        sleep(0.1)
-        last_time_changed = system_time.monotonic()
-    last_sec_displayed = seconds
+    # force frames to happen once a second regardless of real time
+    delta = system_time.monotonic() - last_frame_time
+    if delta < 1:
+        sleep(1 - (system_time.monotonic() - last_frame_time))
+    else:
+        # would be nice to do another alignment but fine for now, it'll sync within 1min
+        pass
+    last_frame_time = system_time.monotonic()
 
