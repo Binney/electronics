@@ -116,13 +116,13 @@ while True:
         # Loop back at the 15 sec mark, because the top and bottom are when the hands line up and that's pretty
         seconds = time_value.tm_sec
     angle = radians(seconds * 6 + 180)
-    sec_hand_coords = (display.width // 2 + int(r1 * -1 * sin(angle)),
-                       display.height // 2 + int(r1 * cos(angle)))
+    sec_hand_coords = (display.width // 2 + int((r1 + 1) * -1 * sin(angle)),
+                       display.height // 2 + int((r1 + 1) * cos(angle)))
     tr1 = arrow(25, 11, 10, sec_hand_coords[0], sec_hand_coords[1], angle)
     my_display_group.append(tr1)
 
-    sec_hand_coords = (display.width // 2 + int(r2 * -1 * sin(angle)),
-                       display.height // 2 + int(r2 * cos(angle)))
+    sec_hand_coords = (display.width // 2 + int((r2 + 1) * -1 * sin(angle)),
+                       display.height // 2 + int((r2 + 1) * cos(angle)))
     tr2 = arrow(-25, 11, -10, display.width - sec_hand_coords[0], sec_hand_coords[1], -angle)
     my_display_group.append(tr2)
 
