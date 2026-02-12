@@ -131,7 +131,7 @@ while True:
     # force frames to happen once a second regardless of real time
     delta = system_time.monotonic() - last_frame_time
     if delta < 1:
-        sleep(1 - (system_time.monotonic() - last_frame_time))
+        sleep(1 - delta)
     else:
         # would be nice to do another alignment but fine for now, it'll sync within 1min
         pass
