@@ -18,14 +18,14 @@ pixels = neopixel.NeoPixel(board.GP0, num_pixels)#, pixel_order=neopixel.GRBW)
 pixels.brightness = 0.1
 
 songs = [
-    "",
-    "ABBA",
-    "Bee Gees - Tragedy",
-    "Dua Lipa - Physical",
-    "",
-    "Panic Station",
-    "Cra2y train",
-    "Europe"
+    "the chances of anything stopping this party are 1 000 000 to 1, he said",
+    "hit the floor and lets see you dance to ABBA",
+    "Playing Bee Gees - Tragedy",
+    "Playing Dua Lipa - Physical",
+    "beep boop - party is here",
+    "youve arrived at Panic Station",
+    "bang your heads for the Prince - its o22y osbourne - Cra2y train - choo choo",
+    "one final song"
 ]
 
 def to_ints(input):
