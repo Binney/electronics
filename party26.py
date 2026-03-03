@@ -52,8 +52,16 @@ def hue_to_rgbw(hue):
 
 offset = 0
 
-min_hue = 160
-max_hue = 300
+hues = [
+    [250, 290], # basically just purple
+    [-45, 45], # pink to yellow
+    [45, 180], # yellow to blue
+    [160, 300], # blue to pink
+    [100, 180], # blue and green
+    [300, 370], # pink and orange
+    [-10, 10], # basically just red
+    [240, 250] # basically just blue
+]
 
 SLOW_LOOP_INTERVAL = 200  # milliseconds
 
@@ -68,6 +76,7 @@ while True:
     current_time = ticks_ms()
     
     # Fast loop - runs as often as possible
+    [min_hue, max_hue] = hues[current_song % len(hues)]
     for i in range(num_pixels):
         n = (i + leds_offset) % num_pixels
         if n < num_pixels / 2:
