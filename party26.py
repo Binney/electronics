@@ -3,6 +3,7 @@ import board
 import busio
 from adafruit_ht16k33.segments import Seg7x4
 import neopixel
+from adafruit_ticks import ticks_ms, ticks_add
 
 i2c = busio.I2C(board.GP3, board.GP2)
 display = Seg7x4(i2c)
@@ -54,26 +55,38 @@ offset = 0
 min_hue = 160
 max_hue = 300
 
+SLOW_LOOP_INTERVAL = 200  # milliseconds
+
+last_fast = ticks_ms()
+last_slow = ticks_ms()
+
+leds_offset = 0
+msg_offset = 0
+current_song = 0
+
 while True:
+    current_time = ticks_ms()
+    
+    # Fast loop - runs as often as possible
     for i in range(num_pixels):
-        n = (i + offset) % num_pixels
+        n = (i + leds_offset) % num_pixels
         if n < num_pixels / 2:
             # go up
             huu = float(n) * 2 * (max_hue - min_hue) / num_pixels + min_hue
         else:
             huu = float(num_pixels - n) * 2 * (max_hue - min_hue) / num_pixels + min_hue
         pixels[i] = hue_to_rgbw(float(huu) % 360)
-        display.print(str(i))
-    sleep(0.01)
-    offset += 1
-    if offset > num_pixels:
-        offset = 0
+    leds_offset += 1
+    if leds_offset > num_pixels:
+        leds_offset = 0
 
-while True:
-    for song in songs:
-        message = f"   {song}    "
-        # message = "the party of a generation  "
-        doublemsg = message + message
-        for i in range(len(song) + 5):
-            display.print(doublemsg[i:4+i])
-            sleep(0.5)
+    
+    # Slow loop - runs every 200ms
+    if ticks_add(current_time, -last_slow) >= SLOW_LOOP_INTERVAL:
+        msg_offset += 1
+        if msg_offset > len(songs[current_song]) + 5:
+            msg_offset = 0
+            current_song = (current_song + 1) % len(songs)
+        message = f"   {songs[current_song]}    "
+        display.print(message[msg_offset:4+msg_offset])
+        last_slow = current_time
