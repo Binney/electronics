@@ -4,6 +4,8 @@ import busio
 from adafruit_ht16k33.segments import Seg7x4
 import neopixel
 from adafruit_ticks import ticks_ms, ticks_add
+import digitalio
+from adafruit_debouncer import Debouncer
 
 i2c = busio.I2C(board.GP3, board.GP2)
 display = Seg7x4(i2c)
@@ -11,6 +13,12 @@ display = Seg7x4(i2c)
 # sleep(1)
 # display.print("    ")
 # sleep(0.5)
+
+button = digitalio.DigitalInOut(board.GP1)
+button.direction = digitalio.Direction.INPUT
+button.pull = digitalio.Pull.UP
+
+debouncer = Debouncer(button)
 
 num_pixels = 15
 
@@ -89,13 +97,17 @@ while True:
     if leds_offset > num_pixels:
         leds_offset = 0
 
+    debouncer.update()
+    if debouncer.rose:
+        print("skip")
+        msg_offset = 0
+        current_song = (current_song + 1) % len(songs)
     
     # Slow loop - runs every 200ms
     if ticks_add(current_time, -last_slow) >= SLOW_LOOP_INTERVAL:
         msg_offset += 1
         if msg_offset > len(songs[current_song]) + 5:
             msg_offset = 0
-            current_song = (current_song + 1) % len(songs)
         message = f"   {songs[current_song]}    "
         display.print(message[msg_offset:4+msg_offset])
         last_slow = current_time
