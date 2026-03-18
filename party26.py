@@ -104,7 +104,7 @@ while True:
         current_song = (current_song + 1) % len(songs)
     
     # Slow loop - runs every 200ms
-    if ticks_add(current_time, -last_slow) >= SLOW_LOOP_INTERVAL:
+    if ticks_add(last_slow, SLOW_LOOP_INTERVAL) <= current_time:
         msg_offset += 1
         if msg_offset > len(songs[current_song]) + 5:
             msg_offset = 0
