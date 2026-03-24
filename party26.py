@@ -7,27 +7,35 @@ from adafruit_ticks import ticks_ms, ticks_add
 import digitalio
 from adafruit_debouncer import Debouncer
 
-i2c = busio.I2C(board.GP3, board.GP2)
-display = Seg7x4(i2c)
+class FakeDisplay:
+    def __init__(self):
+        pass
+    def print(self, text):
+        print(text)
+
+try:
+    i2c = busio.I2C(board.GP15, board.GP14)
+    display = Seg7x4(i2c)
+except:
+    display = FakeDisplay()
 # display.print("9999")
 # sleep(1)
 # display.print("    ")
 # sleep(0.5)
 
-button = digitalio.DigitalInOut(board.GP1)
+button = digitalio.DigitalInOut(board.GP27)
 button.direction = digitalio.Direction.INPUT
 button.pull = digitalio.Pull.UP
-
 debouncer = Debouncer(button)
 
-num_pixels = 15
+num_pixels = 16
 
 pixels = neopixel.NeoPixel(board.GP0, num_pixels)#, pixel_order=neopixel.GRBW)
-pixels.brightness = 0.1
+pixels.brightness = 1
 
 songs = [
     "the chances of anything stopping this party are 1 000 000 to 1, he said",
-    "hit the floor and lets see you dance to ABBA",
+    "disco all night long - ABBA",
     "Playing Bee Gees - Tragedy",
     "Playing Dua Lipa - Physical",
     "beep boop - party is here",
@@ -73,8 +81,9 @@ hues = [
 
 SLOW_LOOP_INTERVAL = 200  # milliseconds
 
-last_fast = ticks_ms()
-last_slow = ticks_ms()
+now = ticks_ms()
+last_fast = now
+last_slow = now
 
 leds_offset = 0
 msg_offset = 0
