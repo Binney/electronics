@@ -6,7 +6,7 @@ Here are some useful links and basic code snippets!
 
 [Interactive Pi Pico Pinout](https://pico.pinout.xyz/)
 
-[CircuitPython uf2 download](https://circuitpython.org/board/raspberry_pi_pico/)
+[CircuitPython uf2 download](https://circuitpython.org/downloads)
 
 [Adafruit CircuitPython library bundle](https://circuitpython.org/libraries) (you shouldn't need this if you're using the VS Code extension)
 
@@ -42,7 +42,7 @@ There are plenty of good online stores for electronics equipment but the 3 I lik
 
 ## Pico setup
 
-1. Download UF2 for the correct board (28th July: we are using Pi Pico, not W, not 2)
+1. Download UF2 for the correct board (23rd June: we are using Pi Pico 2W)
 1. Plug Pico into your computer with a decent USB Micro cable.
 1. Copy UF2 to root of device.
 1. Open VS Code with extension installed.
@@ -147,3 +147,7 @@ while True:
     keyboard.release(Keycode.CAPS_LOCK)
     sleep(1)
 ```
+
+## Soldering
+
+[Adafruit's guide](https://learn.adafruit.com/adafruit-guide-excellent-soldering)
