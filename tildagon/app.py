@@ -5,7 +5,6 @@ import app
 from events.input import Buttons, BUTTON_TYPES
 import time
 
-DISPLAY_SIZE = 240
 r1 = 103
 r2 = 90
 
@@ -61,8 +60,10 @@ class NrClockApp(app.App):
         # Update every frame so it's smooth:
         self.seconds += delta / 1000
         # Plus sync every minute to avoid drift:
-        if now.tm_sec == 0 and not self.updated_seconds:
-            self.seconds = 0
+        # (but do it at the 45 second mark, so the magic moment the arrows meet is smooth!)
+        if now.tm_sec == 45:
+            if not self.updated_seconds:
+                self.seconds = 45
             self.updated_seconds = True
         else:
             self.updated_seconds = False
@@ -75,8 +76,8 @@ class NrClockApp(app.App):
         ctx.rgb(*nr_red).arc(0, 0, r2, 0, 2 * pi, True).stroke()
         seconds = self.seconds
         angle = radians(seconds * 6 + 180)
-        arr1 = arrow(25, 11, 10, int((r1) * -1 * sin(angle)), int((r1) * cos(angle)), angle)
-        arr2 = arrow(-25, 11, -10, -int((r2) * -1 * sin(angle)), int((r2) * cos(angle)), -angle)
+        arr1 = arrow(25, 13, 13, r1 * -1 * sin(angle), r1 * cos(angle), angle)
+        arr2 = arrow(-25, 11, -13, -(r2 * -1 * sin(angle)), r2 * cos(angle), -angle)
         draw_polygon(ctx, arr1, nr_red)
         draw_polygon(ctx, arr2, nr_red)
         ctx.font = 'Arimo Bold'
