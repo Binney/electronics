@@ -3,6 +3,7 @@ from math import pi, cos, sin, radians
 import app
 
 from events.input import Buttons, BUTTON_TYPES
+import time
 
 DISPLAY_SIZE = 240
 r1 = 103
@@ -34,10 +35,18 @@ def hex_to_tuple(hex_color):
 
 nr_red = hex_to_tuple("#db010e")
 
-class ExampleApp(app.App):
+class NrClockApp(app.App):
+    def update_time(self, localtime):
+        self.hours = localtime.tm_hour
+        self.minutes = localtime.tm_min
+
     def __init__(self):
         self.button_states = Buttons(self)
-        self.time = 0
+        now = time.localtime()
+        self.update_time(now)
+        self.seconds = now.tm_sec
+
+        self.updated_seconds = False
 
     def update(self, delta):
         if self.button_states.get(BUTTON_TYPES["CANCEL"]):
@@ -46,7 +55,17 @@ class ExampleApp(app.App):
             # open. Without it the app would close again immediately.
             self.button_states.clear()
             self.minimise()
-        self.time += delta
+        now = time.localtime()
+        self.update_time(now)
+
+        # Update every frame so it's smooth:
+        self.seconds += delta / 1000
+        # Plus sync every minute to avoid drift:
+        if now.tm_sec == 0 and not self.updated_seconds:
+            self.seconds = 0
+            self.updated_seconds = True
+        else:
+            self.updated_seconds = False
 
     def draw(self, ctx):
         ctx.save()
@@ -54,13 +73,18 @@ class ExampleApp(app.App):
         ctx.line_width = 5.0
         ctx.rgb(*nr_red).arc(0, 0, r1, 0, 2 * pi, True).stroke()
         ctx.rgb(*nr_red).arc(0, 0, r2, 0, 2 * pi, True).stroke()
-        seconds = self.time / 1000
+        seconds = self.seconds
         angle = radians(seconds * 6 + 180)
         arr1 = arrow(25, 11, 10, int((r1) * -1 * sin(angle)), int((r1) * cos(angle)), angle)
         arr2 = arrow(-25, 11, -10, -int((r2) * -1 * sin(angle)), int((r2) * cos(angle)), -angle)
         draw_polygon(ctx, arr1, nr_red)
         draw_polygon(ctx, arr2, nr_red)
+        ctx.font = 'Arimo Bold'
+        ctx.text_align = ctx.CENTER
+        ctx.text_baseline = 'middle'
+        ctx.font_size = 60
+        ctx.rgb(1, 1, 1).move_to(0, 0).text(f"{self.hours}:{self.minutes:02d}")
         ctx.restore()
 
 
-__app_export__ = ExampleApp
+__app_export__ = NrClockApp
