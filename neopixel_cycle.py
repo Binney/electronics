@@ -6,6 +6,7 @@ num_pixels = 30
 
 pixels = neopixel.NeoPixel(board.GP3, num_pixels)#, pixel_order=neopixel.GRBW)
 pixels.brightness = 0.1
+pixels.auto_write = False
 
 def to_ints(input):
     return tuple(int(tup) for tup in input)
@@ -43,7 +44,7 @@ while True:
         else:
             huu = float(num_pixels - n) * 2 * (max_hue - min_hue) / num_pixels + min_hue
         pixels[i] = hue_to_rgbw(float(huu) % 360)
-    sleep(0.01)
+    pixels.show()
     offset += 1
     if offset > num_pixels:
         offset = 0
