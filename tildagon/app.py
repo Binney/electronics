@@ -1,4 +1,4 @@
-from math import pi, cos, sin
+from math import pi, cos, sin, radians
 
 import app
 
@@ -37,6 +37,7 @@ nr_red = hex_to_tuple("#db010e")
 class ExampleApp(app.App):
     def __init__(self):
         self.button_states = Buttons(self)
+        self.time = 0
 
     def update(self, delta):
         if self.button_states.get(BUTTON_TYPES["CANCEL"]):
@@ -45,22 +46,20 @@ class ExampleApp(app.App):
             # open. Without it the app would close again immediately.
             self.button_states.clear()
             self.minimise()
+        self.time += delta
 
     def draw(self, ctx):
         ctx.save()
         ctx.rgb(0, 0, 0).rectangle(-120, -120, 240, 240).fill()
-        # ctx.rgb(1, 0, 0).move_to(-80, 0).text("Hello world")
-        # ctx.rgb(0,0,1).move_to(-80,0).line_to(80,0).line_to(0,80).close_path().stroke()
         ctx.line_width = 5.0
-        ctx.rgb(1, 0, 0).arc(0, 0, r1, 0, 2 * pi, True).stroke()
-        ctx.rgb(1, 0, 0).arc(0, 0, r2, 0, 2 * pi, True).stroke()
-        # triangle = [[-80, 0], [80, 0], [0, 80]]
-        # draw_polygon(ctx, triangle, (0, 1, 0))
-        angle = 0
-        sec_hand_coords = (DISPLAY_SIZE // 2 + int((r1 + 1) * -1 * sin(angle)),
-                       DISPLAY_SIZE // 2 + int((r1 + 1) * cos(angle)))
-        arr1 = arrow(25, 11, 10, 0, 80, angle)
+        ctx.rgb(*nr_red).arc(0, 0, r1, 0, 2 * pi, True).stroke()
+        ctx.rgb(*nr_red).arc(0, 0, r2, 0, 2 * pi, True).stroke()
+        seconds = self.time / 1000
+        angle = radians(seconds * 6 + 180)
+        arr1 = arrow(25, 11, 10, int((r1) * -1 * sin(angle)), int((r1) * cos(angle)), angle)
+        arr2 = arrow(-25, 11, -10, -int((r2) * -1 * sin(angle)), int((r2) * cos(angle)), -angle)
         draw_polygon(ctx, arr1, nr_red)
+        draw_polygon(ctx, arr2, nr_red)
         ctx.restore()
 
 
